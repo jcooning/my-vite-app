@@ -1,0 +1,821 @@
+:root {
+  --primary-color: #3d3d3d;
+  --secondary-color: #aaaaaa;
+  --bg-color: #f0f2f5;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --text-primary: #2d3436;
+  --text-secondary: #636e72;
+  --accent-color: #ff4081;
+}
+
+.dashboard-container {
+  display: grid;
+  grid-template-columns: 1.6fr 1.2fr 1fr; /* 좌측 패널(폼 입력) 폭을 대폭 늘림 */
+  gap: 30px; 
+  max-width: 1900px; 
+  margin: 0 auto;
+  padding: 30px; /* 전체 패딩 증가 */
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  background: #f8faff;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.left-panel, .middle-panel, .right-panel {
+  min-width: 0; /* Crucial for preventing grid expansion */
+}
+
+.left-panel {
+  flex: none;
+}
+
+.right-panel {
+  flex: none;
+}
+
+.middle-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-top: 0;
+  margin-bottom: 120px; /* 제목 아래 간격 더 넓힘 (레드박스 요청 반영) */
+}
+
+.reservation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 35px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #dfe6e9;
+  background: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 5px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 10px 15px;
+  border-radius: 10px;
+  background: #f8f9fa;
+  transition: all 0.2s;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.checkbox-item:hover {
+  background: #f1f2f6;
+  border-color: #dfe6e9;
+}
+
+.checkbox-item input[type="checkbox"] {
+  display: none;
+}
+
+.custom-checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.checkbox-item input:checked+.custom-checkbox {
+  background: white;
+  border-color: #d63031;
+  position: relative;
+}
+
+.checkbox-item input:checked+.custom-checkbox::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #d63031;
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.happy-call-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2열로 변경 */
+  gap: 12px;
+}
+
+.happy-call-item {
+  background: #f8f9fa;
+  padding: 12px 15px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #eee;
+}
+
+.happy-call-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ox-group {
+  display: flex;
+  background: #dfe6e9;
+  padding: 3px;
+  border-radius: 8px;
+  gap: 2px;
+}
+
+.ox-btn {
+  border: none;
+  background: none;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #b2bec3;
+}
+
+.ox-btn.active-o {
+  background: #ff7675;
+  color: white;
+  box-shadow: 0 2px 8px rgba(255, 118, 117, 0.4);
+}
+
+.ox-btn.active-x {
+  background: #636e72;
+  color: white;
+  box-shadow: 0 2px 8px rgba(99, 110, 114, 0.4);
+}
+
+.memo-textarea {
+  line-height: 1.6;
+  font-family: inherit;
+  resize: vertical;
+  background: #fff;
+  border: 1.5px solid #dfe6e9 !important;
+}
+
+.bottom-action-row {
+  display: flex;
+  gap: 15px;
+  align-items: stretch;
+  margin-top: 10px;
+}
+
+.price-summary {
+  background: #3d3d3d;
+  padding: 15px 25px; /* 크기 줄임 */
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: white;
+  margin: 10px 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.price-label {
+  font-weight: 700;
+  font-size: 1rem; /* 소폭 줄임 */
+  opacity: 0.95;
+  margin-bottom: 2px;
+}
+
+.price-value {
+  font-size: 1.5rem; /* 크기 줄임 */
+  font-weight: 900;
+}
+
+.submit-btn {
+  background: #3d3d3d;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 15px;
+  font-size: 1.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  margin-bottom: 30px;
+}
+
+.submit-btn:hover {
+  background: #2a2a2a;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+}
+
+/* Ant Design Customizations */
+.custom-picker {
+  background: white !important;
+  border: 1px solid #dfe6e9 !important;
+  font-family: inherit;
+}
+
+.custom-picker:hover,
+.custom-picker-focused {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06) !important;
+}
+
+.ant-picker-input>input {
+  font-size: 1.1rem !important;
+  font-weight: 500 !important;
+}
+
+/* TimePicker Dropdown Layout Fix */
+.custom-time-dropdown .ant-picker-time-panel {
+  display: flex !important;
+  min-width: 250px !important;
+}
+
+.custom-time-dropdown .ant-picker-time-panel-column {
+  width: 85px !important;
+  /* Increased width to prevent stacking */
+  flex: 1 0 auto !important;
+}
+
+/* Move AM/PM column to the left */
+.custom-time-dropdown .ant-picker-time-panel-column:nth-child(3) {
+  order: -1 !important;
+  border-right: 1px solid #f0f0f0;
+}
+
+/* Enlarge and Bold TimePicker Text */
+.custom-time-dropdown .ant-picker-time-panel-cell-inner {
+  font-size: 17px !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+  /* Prevent characters from stacking vertically */
+  padding: 12px 0 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.custom-time-dropdown .ant-picker-time-panel-column>li.ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+  color: var(--primary-color) !important;
+  background: #3d3d3d !important;
+  color: white !important;
+  border-radius: 8px;
+}
+
+.calendar-card {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+/* Calendar Styles */
+.calendar-card {
+  padding: 30px 15px; /* 내부 여백 증가 */
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding: 0 10px; /* 헤더 좌우 여백 */
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #666666;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 8px;
+}
+
+.nav-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px; /* 간격을 넓혀서 시원하게 보임 */
+  width: 100%;
+}
+
+.calendar-day-header {
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  padding: 5px 0 15px 0;
+}
+
+.calendar-cell {
+  aspect-ratio: 1.1; /* 약간 더 여유 있는 비율 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+  border: 1px solid #f0f2f5;
+}
+
+.calendar-cell.empty {
+  border: none;
+  background: transparent;
+  cursor: default;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.calendar-cell:hover {
+  border-color: var(--secondary-color);
+  transform: scale(1.05);
+}
+
+.calendar-cell.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.calendar-cell.has-event::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  background: var(--accent-color);
+  border-radius: 50%;
+}
+
+.day-number {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.event-count {
+  font-size: 0.7rem;
+  background: rgba(255, 64, 129, 0.1);
+  color: var(--accent-color);
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-top: 4px;
+}
+
+.calendar-cell.active .event-count {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* Reservation List */
+.reservation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 430px; /* 높이를 살짝 줄여 전체 스크롤 방지 */
+  min-height: 430px;
+  overflow-y: auto;
+  padding-right: 5px;
+  border-bottom: 1px solid #f0f2f5;
+  margin-bottom: 20px;
+}
+
+.reservation-card {
+  background: white;
+  padding: 15px;
+  border-radius: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #f0f2f5;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reservation-card:hover {
+  transform: translateX(5px);
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.reservation-card.selected {
+  border-width: 2px;
+  border-color: var(--primary-color);
+  background: rgba(0, 0, 0, 0.02);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.reservation-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.reservation-info h4 {
+  margin: 0 0 8px 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.reservation-info p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #636e72;
+}
+
+.icon-btn-primary,
+.icon-btn-secondary {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 10px;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.icon-btn-primary {
+  background: #a0a0a0;
+  color: white;
+}
+
+.icon-btn-primary:hover {
+  background: #888888;
+  transform: translateY(-2px);
+}
+
+.icon-btn-secondary {
+  background: #707070;
+  color: white;
+}
+
+.icon-btn-secondary:hover {
+  background: #565656;
+  transform: translateY(-2px);
+}
+
+.place-item {
+  padding: 12px;
+  border-bottom: 1px solid #f0f2f5;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.place-item:hover {
+  background: #f8f9fa;
+}
+
+.place-item:last-child {
+  border-bottom: none;
+}
+
+.place-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.place-addr {
+  font-size: 0.9rem;
+  color: #636e72;
+}
+
+
+.action-btn-secondary {
+  background: #f1f2f6;
+  color: #2d3436;
+  border: none;
+  padding: 14px 20px; /* 크기 키움 */
+  border-radius: 12px;
+  font-size: 1rem; /* 크기 키움 */
+  font-weight: 700; /* 굵게 */
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 중앙 정렬 */
+  gap: 8px;
+}
+
+.action-btn-secondary:hover {
+  background: #dfe6e9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.action-btn-secondary:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 1280px) {
+  .dashboard-container {
+    grid-template-columns: 1.5fr 1fr; /* Drop to 2 columns on medium screens */
+  }
+}
+
+@media (max-width: 1024px) {
+  .dashboard-container {
+    grid-template-columns: 1fr; /* Single column on small screens */
+  }
+}
+
+.place-search-input {
+  padding: 13px 18px !important;
+  border-radius: 12px !important;
+  border: 1px solid #dfe6e9 !important;
+  font-size: 1.1rem !important;
+  font-weight: 500 !important;
+  background: white;
+  transition: all 0.3s;
+  box-sizing: border-box;
+}
+
+.place-search-input:focus {
+  outline: none;
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+.ant-collapse-header {
+  padding: 15px 0 !important;
+  font-size: 1.05rem !important;
+}
+
+.ant-collapse-content-box {
+  padding: 10px 0 !important;
+}
+
+/* Simple Big Calendar */
+.simple-calendar-container {
+  padding: 10px;
+  background: white;
+}
+
+.simple-calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding: 0 10px;
+}
+
+.simple-calendar-header h3 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0;
+  color: #2d3436;
+}
+
+.simple-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 12px;
+}
+
+.calendar-weekday {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #b2bec3;
+  padding-bottom: 10px;
+}
+
+.simple-calendar-day {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #fdfdfd;
+  border: 1px solid #f1f2f6;
+  position: relative;
+}
+
+.simple-calendar-day:hover:not(.empty) {
+  background: #f1f2f6;
+  transform: translateY(-2px);
+  border-color: #888888;
+}
+
+.simple-calendar-day.active {
+  background: #3d3d3d !important;
+  color: white !important;
+  border-color: #3d3d3d !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.simple-calendar-day.today {
+  border: 2px solid #888888;
+  color: #3d3d3d;
+  font-weight: 800;
+}
+
+.simple-calendar-day .day-num {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.simple-calendar-day .event-dot {
+  width: 6px;
+  height: 6px;
+  background: #ff7675;
+  border-radius: 50%;
+  margin-top: 4px;
+}
+
+.simple-calendar-day.sunday .day-num { color: #ff7675; }
+.simple-calendar-day.saturday .day-num { color: #0984e3; }
+.simple-calendar-day.active .day-num { color: white !important; }
+
+.simple-calendar-day.empty {
+  cursor: default;
+  background: transparent;
+  border: none;
+}
+
+/* Custom Big Time Picker - Compact Version */
+.time-picker-popover .ant-popover-inner {
+  padding: 0;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.time-picker-container {
+  padding: 15px;
+  background: white;
+}
+
+.time-picker-layout {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.time-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.time-column-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #b2bec3;
+  margin-bottom: 2px;
+}
+
+.time-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.time-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.time-big-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid #f1f2f6;
+  background: #fdfdfd;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.time-big-btn:hover {
+  background: #e8e8e8;
+  border-color: #888888;
+}
+
+.time-big-btn.active {
+  background: #3d3d3d;
+  color: white !important;
+  border-color: #3d3d3d;
+}
+
+.meridiem-btn {
+  width: 65px;
+  height: 50px;
+  font-size: 1.2rem;
+}
+
+.minute-btn {
+  width: 75px;
+  height: 45px;
+  font-size: 1.1rem;
+}
+
+.time-confirm-btn {
+  width: 100%;
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #3d3d3d;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+}
