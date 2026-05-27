@@ -608,6 +608,7 @@ const Home = () => {
   const [isPlaceModalOpen, setIsPlaceModalOpen] = useState(false); // 장소 검색 모달
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false); // 주소 검색 모달
   const [isPreviewOpen, setIsPreviewOpen] = useState(false); // 미리보기 모달
+  const [isListOpen, setIsListOpen] = useState(false); // 예약 목록 접이식
   const [timePickerOpen, setTimePickerOpen] = useState(false); // 시계 픽커 제어
 
   // 검색 관련 상태
@@ -969,7 +970,11 @@ const Home = () => {
     const matchesSearch =
       !searchTerm ||
       (res.name && res.name.toLowerCase().includes(searchTerm.toLowerCase()));
-    if (!showAllReservations && !filterDate && !searchTerm) {
+    if (filterDate) {
+      const resDate = res.date || res.weddingDate;
+      return resDate === filterDate && matchesSearch;
+    }
+    if (!showAllReservations && !searchTerm) {
       const resDate = res.date || res.weddingDate;
       if (!resDate) return false;
       return (
@@ -977,7 +982,10 @@ const Home = () => {
           `${currentYear}-${currentMonth + 1}` && matchesSearch
       );
     }
-    return matchesSearch;
+    // 전체 조회 시 올해만 표시
+    const resDate = res.date || res.weddingDate;
+    if (!resDate) return matchesSearch;
+    return dayjs(resDate).year() === currentYear && matchesSearch;
   });
 
   const handleReservationClick = (res) => {
@@ -1106,7 +1114,7 @@ ${options}${dataNoticeText}
     <ConfigProvider locale={locale}>
       <div className="dashboard-container">
         <div className="left-panel">
-          <div className="glass-panel">
+          <div className="glass-panel" style={{ marginTop: "50px", paddingTop: "30px" }}>
             <div
               style={{
                 display: "flex",
@@ -1591,7 +1599,7 @@ ${options}${dataNoticeText}
                     placeholder="메모를 입력하세요"
                     style={{
                       width: "100%",
-                      minHeight: "80px",
+                      minHeight: "120px",
                       padding: "10px 12px",
                       borderRadius: "8px",
                       border: "1px solid rgba(255,255,255,0.2)",
@@ -1667,346 +1675,179 @@ ${options}${dataNoticeText}
           </div>
         </div>
 
-        <div className="middle-panel">
-          <div
-            className="glass-panel"
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              paddingBottom: "30px",
-            }}
-          >
-            <h2 className="section-title">
-              <CalendarOutlined /> 캘린더
-            </h2>
-            <div className="calendar-card">
-              <div className="calendar-header">
-                <div
-                  style={{ display: "flex", gap: "8px", alignItems: "center" }}
-                >
-                  <button onClick={handlePrevMonth} className="nav-btn">
-                    &lt;
-                  </button>
-                  <button
-                    onClick={handleGoToday}
-                    className="action-btn-secondary"
-                    style={{ padding: "4px 10px", fontSize: "0.8rem" }}
-                  >
-                    오늘
-                  </button>
-                </div>
-                <h3>
-                  {currentYear}년 {currentMonth + 1}월
-                </h3>
-                <button onClick={handleNextMonth} className="nav-btn">
-                  &gt;
-                </button>
+        <div className="right-column">
+          {/* 캘린더 */}
+          <div className="glass-panel calendar-panel">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+              <h2 style={{ margin: 0, fontSize: "1.7rem", fontWeight: 700, color: "var(--primary-color)", display: "flex", alignItems: "center", gap: "8px" }}>
+                <CalendarOutlined /> {currentYear}년 {currentMonth + 1}월
+              </h2>
+              <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+                <button onClick={handlePrevMonth} className="nav-btn">&lt;</button>
+                <button onClick={handleGoToday} className="action-btn-secondary" style={{ padding: "4px 12px", fontSize: "0.85rem" }}>오늘</button>
+                <button onClick={handleNextMonth} className="nav-btn">&gt;</button>
               </div>
-              <div className="calendar-grid">
-                {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
-                  <div key={d} className="calendar-day-header">
-                    {d}
-                  </div>
-                ))}
-                {/* 앞쪽 빈 칸 */}
-                {Array.from({ length: firstDay }).map((_, i) => (
-                  <div
-                    key={`empty-start-${i}`}
-                    className="calendar-cell empty"
-                  ></div>
-                ))}
-                {/* 날짜 칸 */}
-                {calendarDays.map((day) => {
-                  const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-                  const dayEvents = reservations.filter(
-                    (r) => (r.date || r.weddingDate) === dateStr,
-                  );
-                  const hasEvent = dayEvents.length > 0;
-                  const isSelected =
-                    selectedDate &&
-                    selectedDate.getFullYear() === currentYear &&
-                    selectedDate.getMonth() === currentMonth &&
-                    selectedDate.getDate() === day;
-                  const holidayName = holidays[dateStr];
-                  const isHoliday = !!holidayName;
-                  const isSunday =
-                    new Date(currentYear, currentMonth, day).getDay() === 0;
+            </div>
 
-                  return (
-                    <div
-                      key={day}
-                      className={`calendar-cell ${hasEvent ? "has-event" : ""} ${isSelected ? "active" : ""}`}
-                      onClick={() => handleDateClick(day)}
+            <div className="calendar-grid">
+              {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
+                <div key={d} className="calendar-day-header">{d}</div>
+              ))}
+              {Array.from({ length: firstDay }).map((_, i) => (
+                <div key={`empty-start-${i}`} className="calendar-cell empty" />
+              ))}
+              {calendarDays.map((day) => {
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                const dayEvents = reservations.filter((r) => (r.date || r.weddingDate) === dateStr);
+                const isSelected = selectedDate &&
+                  selectedDate.getFullYear() === currentYear &&
+                  selectedDate.getMonth() === currentMonth &&
+                  selectedDate.getDate() === day;
+                const holidayName = holidays[dateStr];
+                const isHoliday = !!holidayName;
+                const dow = new Date(currentYear, currentMonth, day).getDay();
+                const isSunday = dow === 0;
+                const isSaturday = dow === 6;
+                const isToday = dayjs().format("YYYY-MM-DD") === dateStr;
+                const eventColors = ["#4f8ef7"];
+
+                return (
+                  <div
+                    key={day}
+                    className={`calendar-cell ${isSelected ? "active" : ""} ${isToday ? "today" : ""}`}
+                    onClick={() => handleDateClick(day)}
+                  >
+                    <span
+                      className={`day-number ${isToday ? "today-num" : ""}`}
+                      style={{ color: isHoliday || isSunday ? "#e17055" : isSaturday ? "#4f8ef7" : undefined }}
                     >
-                      <span
-                        className="day-number"
-                        style={{
-                          color: isHoliday || isSunday ? "#e17055" : undefined,
-                        }}
+                      {day}
+                    </span>
+                    {holidayName && (
+                      <div className="holiday-label">{holidayName}</div>
+                    )}
+                    {dayEvents.map((ev, idx) => (
+                      <div
+                        key={ev.id}
+                        className="event-bar"
+                        style={{ background: eventColors[idx % eventColors.length] }}
+                        onClick={(e) => { e.stopPropagation(); handleReservationClick(ev); }}
                       >
-                        {day}
-                      </span>
-                      {holidayName && (
-                        <div
-                          style={{
-                            fontSize: "0.6rem",
-                            color: "#e17055",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {holidayName}
-                        </div>
-                      )}
-                      {hasEvent && (
-                        <span className="event-count">{dayEvents.length}</span>
-                      )}
-                    </div>
-                  );
-                })}
-                {/* 뒤쪽 빈 칸 (항상 6줄을 유지하도록 함) */}
-                {Array.from({ length: 42 - (firstDay + daysInMonth) }).map(
-                  (_, i) => (
-                    <div
-                      key={`empty-end-${i}`}
-                      className="calendar-cell empty"
-                    ></div>
-                  ),
-                )}
-              </div>
+                        {ev.time || ev.weddingTime ? `${(ev.time || ev.weddingTime).slice(0, 5)} ` : ""}
+                        {ev.name}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
+              {Array.from({ length: 42 - (firstDay + daysInMonth) }).map((_, i) => (
+                <div key={`empty-end-${i}`} className="calendar-cell empty" />
+              ))}
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: "8px", marginTop: "15px" }}>
-            <button
-              type="button"
-              className="action-btn-secondary"
-              style={{ flex: 1, padding: "12px" }}
-              onClick={handleCopyText}
-            >
-              <CopyOutlined /> 복사
-            </button>
-            <button
-              type="button"
-              className="action-btn-secondary"
-              style={{ flex: 1, padding: "12px" }}
-              onClick={handleSaveImage}
-            >
-              <FileImageOutlined /> 저장
-            </button>
-            <button
-              type="button"
-              className="action-btn-secondary"
-              style={{ flex: 1, padding: "12px" }}
-              onClick={() => setIsPreviewOpen(true)}
-            >
-              <EyeOutlined /> 미리보기
-            </button>
-          </div>
-
-          <div className="price-summary">
-            <span className="price-label">최종 견적 금액</span>
-            <span className="price-value">₩ {totalPrice.toLocaleString()}</span>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              if (editingId) {
-                if (window.confirm("변경 내용을 저장하시겠습니까?")) {
-                  handleSubmit({ preventDefault: () => {} });
-                }
-              } else {
-                handleSubmit({ preventDefault: () => {} });
-              }
-            }}
-            className="submit-btn"
-          >
-            {editingId ? "수정 완료" : "예약 등록"}
-          </button>
-          <div style={{ height: "10px" }} />
-        </div>
-
-        <div className="right-panel">
-          <div
-            className="glass-panel"
-            style={{ display: "flex", flexDirection: "column" }}
-          >
-            <div style={{ flex: "none" }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "15px",
-                }}
-              >
-                <h2
-                  className="section-title"
-                  style={{ margin: 0, fontSize: "1.4rem" }}
-                >
-                  <CheckCircleOutlined /> 예약 목록 (
-                  {filteredReservations.length})
-                </h2>
+          {/* 접이식 예약 목록 */}
+          {/* 예약 목록 팝업 */}
+          <Modal
+            title={
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingRight: "24px" }}>
+                <span><CheckCircleOutlined /> 예약 목록 ({filteredReservations.length}){filterDate && <span style={{ marginLeft: "8px", fontSize: "0.8rem", color: "#ff7675" }}>({filterDate} 필터중)</span>}</span>
                 <div style={{ display: "flex", gap: "8px" }}>
-                  <button
-                    onClick={() => setShowAllReservations(!showAllReservations)}
-                    className="action-btn-secondary"
-                    style={{ padding: "4px 8px", fontSize: "0.75rem" }}
-                  >
+                  <button onClick={() => setShowAllReservations(!showAllReservations)} className="action-btn-secondary" style={{ padding: "2px 10px", fontSize: "0.8rem" }}>
                     {showAllReservations ? "월별" : "전체"}
                   </button>
                   {filterDate && (
-                    <button
-                      onClick={() => setFilterDate(null)}
-                      className="action-btn-secondary"
-                      style={{
-                        padding: "4px 10px",
-                        fontSize: "0.8rem",
-                        background: "#ff7675",
-                        color: "white",
-                      }}
-                    >
-                      해제
-                    </button>
+                    <button onClick={() => setFilterDate(null)} className="action-btn-secondary" style={{ padding: "2px 10px", fontSize: "0.8rem", background: "#ff7675", color: "white" }}>필터 해제</button>
                   )}
                 </div>
               </div>
-              <input
-                type="text"
-                placeholder="고객 이름 검색..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="place-search-input"
-                style={{ width: "100%", marginBottom: "10px", padding: "10px" }}
-              />
-            </div>
-
-            {/* 예약 목록 4개 노출 고정 */}
-            <div className="reservation-list">
+            }
+            open={isListOpen}
+            onCancel={() => setIsListOpen(false)}
+            footer={null}
+            width={620}
+            centered
+          >
+            <input
+              type="text"
+              placeholder="고객 이름 검색..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="place-search-input"
+              style={{ width: "100%", marginBottom: "12px", padding: "8px 12px" }}
+            />
+            <div className="reservation-list" style={{ height: "420px", minHeight: "420px" }}>
               {filteredReservations.length > 0 ? (
                 filteredReservations.map((res) => (
-                  <div
-                    key={res.id}
-                    className="reservation-card"
-                    onClick={() => handleReservationClick(res)}
-                    style={{ padding: "12px" }}
-                  >
+                  <div key={res.id} className="reservation-card" onClick={() => { handleReservationClick(res); setIsListOpen(false); }} style={{ padding: "12px" }}>
                     <div className="reservation-info">
-                      <h4 style={{ fontSize: "1rem", margin: "0 0 4px 0" }}>
-                        {res.name}
-                      </h4>
-                      <p
-                        style={{ fontSize: "0.8rem", margin: 0, color: "#666" }}
-                      >
-                        {res.date || res.weddingDate}{" "}
-                        {res.time || res.weddingTime}
-                      </p>
-                      <p
-                        style={{
-                          fontSize: "0.8rem",
-                          margin: 0,
-                          color: "#666",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {res.location}
-                      </p>
+                      <h4 style={{ fontSize: "1rem", margin: "0 0 4px 0" }}>{res.name}</h4>
+                      <p style={{ fontSize: "0.8rem", margin: 0, color: "#666" }}>{res.date || res.weddingDate} {res.time || res.weddingTime}</p>
+                      <p style={{ fontSize: "0.8rem", margin: 0, color: "#666", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{res.location}</p>
                     </div>
                     <div style={{ textAlign: "right", flex: "none" }}>
-                      <div
-                        style={{
-                          fontWeight: "bold",
-                          color: "#ff4081",
-                          fontSize: "0.9rem",
-                        }}
-                      >
-                        ₩{res.totalPrice.toLocaleString()}
-                      </div>
+                      <div style={{ fontWeight: "bold", color: "#ff4081", fontSize: "0.9rem" }}>₩{res.totalPrice.toLocaleString()}</div>
                       <div style={{ marginTop: "5px" }}>
-                        <EditOutlined
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(res);
-                          }}
-                          style={{ marginRight: "10px", color: "#707070" }}
-                        />
-                        <DeleteOutlined
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            if (window.confirm("정말 삭제하시겠습니까?")) {
-                              removeReservation(res.id);
-                              if (res.notionPageId) {
-                                try {
-                                  await deleteReservationInNotion(
-                                    res.notionPageId,
-                                  );
-                                } catch (err) {
-                                  console.error(
-                                    "Failed to delete in Notion:",
-                                    err,
-                                  );
-                                  alert("노션 연동 삭제에 실패했습니다.");
-                                }
-                              }
+                        <EditOutlined onClick={(e) => { e.stopPropagation(); handleEdit(res); setIsListOpen(false); }} style={{ marginRight: "10px", color: "#707070" }} />
+                        <DeleteOutlined onClick={async (e) => {
+                          e.stopPropagation();
+                          if (window.confirm("정말 삭제하시겠습니까?")) {
+                            removeReservation(res.id);
+                            if (res.notionPageId) {
+                              try { await deleteReservationInNotion(res.notionPageId); }
+                              catch (err) { console.error("Failed to delete in Notion:", err); alert("노션 연동 삭제에 실패했습니다."); }
                             }
-                          }}
-                          style={{ color: "#ff7675" }}
-                        />
+                          }
+                        }} style={{ color: "#ff7675" }} />
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <div
-                  style={{
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#ccc",
-                  }}
-                >
-                  예약 내역이 없습니다.
-                </div>
+                <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#ccc" }}>예약 내역이 없습니다.</div>
               )}
             </div>
+          </Modal>
 
-            {/* 상담메모 아래로 꽉 차게 변경 */}
-            <div
-              className="form-section"
-              style={{
-                marginTop: "20px",
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <label
-                style={{
-                  display: "block",
-                  fontWeight: 700,
-                  fontSize: "1.05rem",
-                  marginBottom: "10px",
+          {/* 하단 버튼 영역 */}
+          <div style={{ display: "flex", gap: "12px" }}>
+            {/* 좌측: 2x2 버튼 그리드 */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", width: "50%" }}>
+              <button type="button" className="action-btn-secondary" style={{ padding: "10px" }} onClick={handleCopyText}>
+                <CopyOutlined /> 복사
+              </button>
+              <button type="button" className="action-btn-secondary" style={{ padding: "10px" }} onClick={handleSaveImage}>
+                <FileImageOutlined /> 저장
+              </button>
+              <button type="button" className="action-btn-secondary" style={{ padding: "10px" }} onClick={() => setIsPreviewOpen(true)}>
+                <EyeOutlined /> 미리보기
+              </button>
+              <button type="button" className="action-btn-secondary" style={{ padding: "10px" }} onClick={() => setIsListOpen(true)}>
+                <CheckCircleOutlined /> 예약 목록
+              </button>
+            </div>
+            {/* 우측: 금액 + 등록 */}
+            <div style={{ width: "50%", display: "flex", flexDirection: "column", gap: "8px" }}>
+              <div className="price-summary" style={{ margin: 0, flex: 1 }}>
+                <span className="price-label">최종 견적 금액</span>
+                <span className="price-value">₩ {totalPrice.toLocaleString()}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (editingId) {
+                    if (window.confirm("변경 내용을 저장하시겠습니까?")) {
+                      handleSubmit({ preventDefault: () => {} });
+                    }
+                  } else {
+                    handleSubmit({ preventDefault: () => {} });
+                  }
                 }}
+                className="submit-btn"
+                style={{ margin: 0 }}
               >
-                상담메모
-              </label>
-              <textarea
-                name="privateMemo"
-                value={formData.privateMemo}
-                onChange={handleInputChange}
-                className="memo-textarea"
-                style={{
-                  width: "100%",
-                  flex: 1,
-                  fontSize: "1rem",
-                  padding: "12px",
-                  minHeight: "150px",
-                }}
-                placeholder="메모를 입력하세요"
-              ></textarea>
+                {editingId ? "수정 완료" : "예약 등록"}
+              </button>
             </div>
           </div>
         </div>

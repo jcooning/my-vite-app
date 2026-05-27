@@ -11,11 +11,11 @@
 
 .dashboard-container {
   display: grid;
-  grid-template-columns: 1.6fr 1.2fr 1fr; /* 좌측 패널(폼 입력) 폭을 대폭 늘림 */
-  gap: 30px; 
-  max-width: 1900px; 
+  grid-template-columns: 1.6fr 2.4fr;
+  gap: 24px;
+  max-width: 1900px;
   margin: 0 auto;
-  padding: 30px; /* 전체 패딩 증가 */
+  padding: 24px 30px;
   min-height: 100vh;
   font-family: 'Inter', sans-serif;
   background: #f8faff;
@@ -35,16 +35,21 @@
   box-sizing: border-box;
 }
 
-.left-panel, .middle-panel, .right-panel {
-  min-width: 0; /* Crucial for preventing grid expansion */
+.left-panel, .middle-panel, .right-panel, .right-column {
+  min-width: 0;
 }
 
-.left-panel {
-  flex: none;
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-self: stretch;
 }
 
-.right-panel {
-  flex: none;
+.calendar-panel {
+  padding: 30px 24px 24px !important;
+  margin-top: 50px !important;
+  flex: 1;
 }
 
 .middle-panel {
@@ -234,13 +239,13 @@
 
 .price-summary {
   background: #3d3d3d;
-  padding: 15px 25px; /* 크기 줄임 */
+  padding: 15px 25px;
   border-radius: 15px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   color: white;
-  margin: 10px 0;
+  margin: 0;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
@@ -271,7 +276,7 @@
   justify-content: center;
   width: 100%;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-  margin-bottom: 30px;
+  margin-bottom: 0;
 }
 
 .submit-btn:hover {
@@ -343,18 +348,17 @@
 
 /* Calendar Styles */
 .calendar-card {
-  padding: 30px 15px; /* 내부 여백 증가 */
+  padding: 0;
   width: 100%;
   box-sizing: border-box;
-  margin: 0 auto;
 }
 
 .calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
-  padding: 0 10px; /* 헤더 좌우 여백 */
+  margin-bottom: 16px;
+  padding: 0;
 }
 
 .nav-btn {
@@ -374,43 +378,131 @@
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 12px; /* 간격을 넓혀서 시원하게 보임 */
+  gap: 0;
   width: 100%;
+  border-left: 1px solid #e8eaed;
+  border-top: 1px solid #e8eaed;
 }
 
 .calendar-day-header {
   text-align: center;
-  font-weight: 700;
-  font-size: 0.85rem;
+  font-weight: 600;
+  font-size: 0.8rem;
   color: var(--text-secondary);
-  padding: 5px 0 15px 0;
+  padding: 8px 0;
+  background: #f8faff;
+  border-right: 1px solid #e8eaed;
+  border-bottom: 1px solid #e8eaed;
 }
 
 .calendar-cell {
-  aspect-ratio: 1.1; /* 약간 더 여유 있는 비율 */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
   background: white;
-  border-radius: 12px;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s;
-  border: 1px solid #f0f2f5;
+  transition: background 0.15s;
+  border-right: 1px solid #e8eaed;
+  border-bottom: 1px solid #e8eaed;
+  padding: 4px 3px 6px;
+  min-height: 120px;
+  overflow: hidden;
 }
 
 .calendar-cell.empty {
-  border: none;
-  background: transparent;
+  background: #fafbfc;
   cursor: default;
   pointer-events: none;
-  visibility: hidden;
 }
 
 .calendar-cell:hover {
-  border-color: var(--secondary-color);
-  transform: scale(1.05);
+  background: #f0f4ff;
+}
+
+.calendar-cell.today {
+  background: white;
+}
+
+.calendar-cell.active {
+  background: #eef3ff !important;
+}
+
+.day-number {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #3d3d3d;
+  line-height: 1;
+  padding: 3px 5px;
+  border-radius: 50%;
+  min-width: 22px;
+  text-align: center;
+}
+
+.day-number.today-num {
+  background: #e74c3c;
+  color: white !important;
+}
+
+.holiday-label {
+  font-size: 0.6rem;
+  color: #e17055;
+  padding: 0 4px;
+  line-height: 1.2;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.event-bar {
+  width: calc(100% - 2px);
+  margin: 1px 1px 0;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.event-bar:hover {
+  filter: brightness(0.9);
+}
+
+.reservation-accordion {
+  background: white;
+  border-radius: 15px;
+  border: 1px solid #e8eaed;
+  overflow: hidden;
+}
+
+.accordion-header {
+  padding: 14px 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #3d3d3d;
+  user-select: none;
+  background: white;
+  transition: background 0.15s;
+}
+
+.accordion-header:hover {
+  background: #f8faff;
+}
+
+.accordion-body {
+  padding: 0 20px 20px;
+  border-top: 1px solid #f0f2f5;
 }
 
 .calendar-cell.active {
@@ -594,15 +686,18 @@
   transform: translateY(0);
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1024px) {
   .dashboard-container {
-    grid-template-columns: 1.5fr 1fr; /* Drop to 2 columns on medium screens */
+    grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 1024px) {
-  .dashboard-container {
-    grid-template-columns: 1fr; /* Single column on small screens */
+@media (max-width: 768px) {
+  .calendar-cell {
+    min-height: 60px;
+  }
+  .event-bar {
+    font-size: 0.65rem;
   }
 }
 
