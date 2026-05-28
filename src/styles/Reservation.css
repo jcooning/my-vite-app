@@ -380,13 +380,15 @@
   grid-template-columns: repeat(7, 1fr);
   gap: 0;
   width: 100%;
-  border-left: 1px solid #e8eaed;
-  border-top: 1px solid #e8eaed;
+  border-left: 1px solid #f0f0f0;
+  border-top: 1px solid #f0f0f0;
 }
 
 .calendar-day-header {
   text-align: center;
   font-weight: 600;
+  border-right: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
   font-size: 0.8rem;
   color: var(--text-secondary);
   padding: 8px 0;
@@ -404,8 +406,8 @@
   cursor: pointer;
   position: relative;
   transition: background 0.15s;
-  border-right: 1px solid #e8eaed;
-  border-bottom: 1px solid #e8eaed;
+  border-right: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
   padding: 4px 3px 6px;
   min-height: 120px;
   overflow: hidden;
@@ -423,6 +425,8 @@
 
 .calendar-cell.today {
   background: white;
+  border-right: none;
+  border-bottom: none;
 }
 
 .calendar-cell.active {
@@ -441,7 +445,7 @@
 }
 
 .day-number.today-num {
-  background: #e74c3c;
+  background: #888888;
   color: white !important;
 }
 
@@ -790,7 +794,7 @@
 }
 
 .simple-calendar-day.today {
-  border: 2px solid #888888;
+  border: none;
   color: #3d3d3d;
   font-weight: 800;
 }

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { Client } from '@notionhq/client';
 import dotenv from 'dotenv';
+import { DAVClient } from 'tsdav';
 
 dotenv.config();
 
@@ -11,6 +12,71 @@ app.use(express.json());
 
 const notion = new Client({ auth: process.env.VITE_NOTION_API_KEY });
 const databaseId = process.env.VITE_NOTION_DATABASE_ID;
+
+// iCloud CalDAV 이벤트 생성
+async function addToICloudCalendar({ name, date, time, location, groomPhone, bridePhone }) {
+    const appleId = process.env.APPLE_ID;
+    const applePassword = process.env.APPLE_APP_PASSWORD;
+    if (!appleId || !applePassword) {
+        console.log('iCloud 인증 정보 없음, 캘린더 동기화 건너뜀');
+        return;
+    }
+    try {
+        const client = new DAVClient({
+            serverUrl: 'https://caldav.icloud.com',
+            credentials: { username: appleId, password: applePassword },
+            authMethod: 'Basic',
+            defaultAccountType: 'caldav',
+        });
+        await client.login();
+        const calendars = await client.fetchCalendars();
+        const calendar = calendars[0];
+        if (!calendar) { console.log('캘린더를 찾을 수 없음'); return; }
+
+        const uid = `wedding-${Date.now()}@app`;
+        const dtstamp = new Date().toISOString().replace(/[-:.]/g, '').slice(0, 15) + 'Z';
+
+        let dtstart, dtend;
+        if (date && time) {
+            const cleanTime = time.replace(/[^0-9:]/g, '');
+            const [h, m] = cleanTime.split(':');
+            const start = new Date(`${date}T${h.padStart(2,'0')}:${(m||'00').padStart(2,'0')}:00`);
+            const end = new Date(start.getTime() + 2 * 60 * 60 * 1000);
+            dtstart = `DTSTART:${start.toISOString().replace(/[-:.]/g,'').slice(0,15)}`;
+            dtend = `DTEND:${end.toISOString().replace(/[-:.]/g,'').slice(0,15)}`;
+        } else if (date) {
+            const d = date.replace(/-/g, '');
+            dtstart = `DTSTART;VALUE=DATE:${d}`;
+            dtend = `DTEND;VALUE=DATE:${d}`;
+        } else {
+            return;
+        }
+
+        const summary = name ? `${name} 예식` : '예식 예약';
+        const desc = `연락처: ${groomPhone || '-'} / ${bridePhone || '-'}`;
+
+        const ics = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//WeddingApp//KO',
+            'BEGIN:VEVENT',
+            `UID:${uid}`,
+            `DTSTAMP:${dtstamp}`,
+            dtstart,
+            dtend,
+            `SUMMARY:${summary}`,
+            `DESCRIPTION:${desc}`,
+            location ? `LOCATION:${location}` : null,
+            'END:VEVENT',
+            'END:VCALENDAR',
+        ].filter(Boolean).join('\r\n');
+
+        await client.createCalendarObject({ calendar, filename: `${uid}.ics`, iCalString: ics });
+        console.log('iCloud 캘린더 등록 완료:', summary);
+    } catch (error) {
+        console.error('iCloud 캘린더 오류:', error.message);
+    }
+}
 
 // CREATE
 app.post('/api/notion', async (req, res) => {
@@ -55,6 +121,8 @@ app.post('/api/notion', async (req, res) => {
         });
 
         console.log('Notion success:', response.id);
+        // iCloud 캘린더 자동 등록
+        addToICloudCalendar({ name, date, time, location, groomPhone, bridePhone });
         res.json({ success: true, pageId: response.id });
     } catch (error) {
         console.error('--- Notion API Error Details ---');

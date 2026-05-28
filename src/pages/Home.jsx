@@ -524,23 +524,21 @@ const ReceiptTemplate = ({ formData, totalPrice }) => {
               [ 데이터 안내 ]
             </h4>
             <div
-              style={{ fontSize: "0.9rem", color: "#666", lineHeight: "1.6" }}
+              style={{ fontSize: "0.9rem", color: "#666", lineHeight: "1.6", wordBreak: "keep-all" }}
             >
-              {formData.products.includes("Private Data") ? (
+              {formData.products.includes("Premium Album Package") || formData.products.includes("Special Album") ? (
                 <>
-                  • 예식후 4일내 SNS용 서비스 10컷 카톡전송
+                  • 데이터는 예식후 당일 <strong>"거래확정"</strong> 후 전송이 됩니다.
                   <br />
-                  • 10일내 원본 메일전송
+                  • 5일 내 서비스컷 10컷 카톡으로 보내드려요.
                   <br />
-                  • 셀렉 20컷 수정본 메일전송
-                  <br />•{" "}
-                  <span style={{ fontWeight: "bold" }}>
-                    데이터는 예식후 당일 "거래확정"후 전송이 됩니다.
-                  </span>
+                  • 10일 내 전체원본 e메일 전송해 드립니다.
+                  <br />
+                  • 50컷 셀렉 회신해 주시면 수정작업후 보내 드립니다.
                 </>
               ) : formData.products.includes("Basic Album") ? (
                 <>
-                  • 데이터는 예식후 당일 "거래확정" 후 전송이 됩니다.
+                  • 데이터는 예식후 당일 <strong>"거래확정"</strong> 후 전송이 됩니다.
                   <br />
                   • 5일 내 서비스컷 10컷 카톡으로 보내드려요.
                   <br />
@@ -548,9 +546,19 @@ const ReceiptTemplate = ({ formData, totalPrice }) => {
                   <br />
                   • 30컷 셀렉 회신해 주시면 수정작업후 보내 드립니다.
                 </>
+              ) : formData.products.includes("Private Data") ? (
+                <>
+                  • 데이터는 예식후 당일 <strong>"거래확정"</strong> 후 전송이 됩니다.
+                  <br />
+                  • 5일 내 서비스컷 10컷 카톡으로 보내드려요.
+                  <br />
+                  • 10일 내 전체원본 e메일 전송해 드립니다.
+                  <br />
+                  • 20컷 셀렉 회신해 주시면 수정작업후 보내 드립니다.
+                </>
               ) : (
                 <>
-                  • 데이터는 예식후 당일 "거래확정" 후 전송이 됩니다.
+                  • 데이터는 예식후 당일 <strong>"거래확정"</strong> 후 전송이 됩니다.
                   <br />
                   • 10일 내 전체원본 e메일 전송해 드립니다.
                 </>
