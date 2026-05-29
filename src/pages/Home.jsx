@@ -618,6 +618,8 @@ const Home = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false); // 미리보기 모달
   const [isListOpen, setIsListOpen] = useState(false); // 예약 목록 접이식
   const [activeTab, setActiveTab] = useState("form"); // 모바일 탭 전환
+  const [isViewOpen, setIsViewOpen] = useState(false); // 조회 모달
+  const [viewingRes, setViewingRes] = useState(null); // 조회 중인 예약
   const [timePickerOpen, setTimePickerOpen] = useState(false); // 시계 픽커 제어
 
   // 검색 관련 상태
@@ -1217,7 +1219,7 @@ ${options}${dataNoticeText}
 
               {/* Schedule */}
               <div
-                className="form-grid"
+                className="form-grid schedule-form-grid"
                 style={{ gridTemplateColumns: "1fr 1fr", gap: "20px" }}
               >
                 <div className="form-group">
@@ -1438,7 +1440,7 @@ ${options}${dataNoticeText}
               </div>
 
               <div
-                className="form-grid"
+                className="form-grid schedule-form-grid"
                 style={{ gridTemplateColumns: "1fr 1fr", gap: "20px" }}
               >
                 <div className="form-group">
@@ -1788,7 +1790,7 @@ ${options}${dataNoticeText}
                 const events = reservations.filter(r => (r.date || r.weddingDate) === dateStr);
                 if (events.length === 0) return <div className="ios-no-event">예약이 없습니다</div>;
                 return events.map(ev => (
-                  <div key={ev.id} className="ios-event-item" onClick={() => { handleReservationClick(ev); setActiveTab("form"); }}>
+                  <div key={ev.id} className="ios-event-item" onClick={() => { setViewingRes(ev); setIsViewOpen(true); }}>
                     <div className="ios-event-time">{(ev.time || ev.weddingTime || '').slice(0, 5)}</div>
                     <div className="ios-event-content">
                       <div className="ios-event-name">{ev.name}</div>
@@ -2061,6 +2063,84 @@ ${options}${dataNoticeText}
       >
         <ReceiptTemplate formData={formData} totalPrice={totalPrice} />
       </div>
+
+      {/* 예약 조회 모달 */}
+      <Modal
+        title={null}
+        open={isViewOpen}
+        onCancel={() => setIsViewOpen(false)}
+        footer={null}
+        centered
+        width={380}
+      >
+        {viewingRes && (
+          <div className="view-modal">
+            <div className="view-modal-header">
+              <div className="view-modal-name">{viewingRes.name}</div>
+              <div className="view-modal-datetime">
+                {viewingRes.date || viewingRes.weddingDate}
+                {(viewingRes.time || viewingRes.weddingTime) ? ` · ${(viewingRes.time || viewingRes.weddingTime).slice(0, 5)}` : ''}
+              </div>
+            </div>
+            <div className="view-modal-body">
+              {viewingRes.location && (
+                <div className="view-modal-row">
+                  <span className="view-label">장소</span>
+                  <span>{viewingRes.location}</span>
+                </div>
+              )}
+              {(viewingRes.products || []).length > 0 && (
+                <div className="view-modal-row">
+                  <span className="view-label">상품</span>
+                  <span>{viewingRes.products.join(', ')}</span>
+                </div>
+              )}
+              <div className="view-modal-row">
+                <span className="view-label">금액</span>
+                <span style={{ fontWeight: 800, color: "#3d3d3d" }}>₩{(viewingRes.totalPrice || 0).toLocaleString()}</span>
+              </div>
+              {viewingRes.groomPhone && (
+                <div className="view-modal-row">
+                  <span className="view-label">신랑</span>
+                  <span>{viewingRes.groomPhone}</span>
+                </div>
+              )}
+              {viewingRes.bridePhone && (
+                <div className="view-modal-row">
+                  <span className="view-label">신부</span>
+                  <span>{viewingRes.bridePhone}</span>
+                </div>
+              )}
+              {viewingRes.memo && (
+                <div className="view-modal-row" style={{ alignItems: "flex-start" }}>
+                  <span className="view-label">메모</span>
+                  <span style={{ whiteSpace: "pre-line", lineHeight: 1.6 }}>{viewingRes.memo}</span>
+                </div>
+              )}
+            </div>
+            <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
+              <button
+                className="action-btn-secondary"
+                style={{ flex: 1 }}
+                onClick={() => setIsViewOpen(false)}
+              >
+                닫기
+              </button>
+              <button
+                className="submit-btn"
+                style={{ flex: 1, margin: 0, padding: "12px" }}
+                onClick={() => {
+                  setIsViewOpen(false);
+                  handleReservationClick(viewingRes);
+                  setActiveTab("form");
+                }}
+              >
+                수정하기
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       <nav className="mobile-tab-bar">
         <button
