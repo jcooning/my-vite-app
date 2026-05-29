@@ -862,6 +862,18 @@ const Home = () => {
     }
   };
 
+  const handleDeleteCurrent = async () => {
+    if (!editingId) return;
+    if (!window.confirm("이 예약을 삭제하시겠습니까?")) return;
+    const res = reservations.find((r) => r.id === editingId);
+    removeReservation(editingId);
+    handleReset();
+    if (res?.notionPageId) {
+      try { await deleteReservationInNotion(res.notionPageId); }
+      catch (err) { console.error("Notion 삭제 실패:", err); }
+    }
+  };
+
   const handleReset = () => {
     setEditingId(null);
     setFormData({
@@ -1840,6 +1852,15 @@ ${options}${dataNoticeText}
                 <span className="price-label">최종 견적 금액</span>
                 <span className="price-value">₩ {totalPrice.toLocaleString()}</span>
               </div>
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={handleDeleteCurrent}
+                  style={{ margin: 0, background: "#e74c3c", color: "#fff", border: "none", borderRadius: "8px", padding: "10px 0", fontWeight: 700, fontSize: "1rem", cursor: "pointer" }}
+                >
+                  예약 삭제
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => {
