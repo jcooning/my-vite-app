@@ -870,7 +870,7 @@ const Home = () => {
     handleReset();
     if (res?.notionPageId) {
       try { await deleteReservationInNotion(res.notionPageId); }
-      catch (err) { console.error("Notion 삭제 실패:", err); }
+      catch (err) { console.error("Notion 삭제 실패:", err); alert("노션 연동 삭제에 실패했습니다."); }
     }
   };
 
@@ -1853,11 +1853,7 @@ ${options}${dataNoticeText}
                 <span className="price-value">₩ {totalPrice.toLocaleString()}</span>
               </div>
               {editingId && (
-                <button
-                  type="button"
-                  onClick={handleDeleteCurrent}
-                  style={{ margin: 0, background: "#e74c3c", color: "#fff", border: "none", borderRadius: "8px", padding: "10px 0", fontWeight: 700, fontSize: "1rem", cursor: "pointer" }}
-                >
+                <button type="button" onClick={handleDeleteCurrent} className="delete-btn">
                   예약 삭제
                 </button>
               )}

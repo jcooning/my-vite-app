@@ -14,7 +14,7 @@ const notion = new Client({ auth: process.env.VITE_NOTION_API_KEY });
 const databaseId = process.env.VITE_NOTION_DATABASE_ID;
 
 // iCloud CalDAV 공통 유틸
-async function getICloudClient() {
+async function getICloudContext() {
     const appleId = process.env.APPLE_ID;
     const applePassword = process.env.APPLE_APP_PASSWORD;
     if (!appleId || !applePassword) return null;
@@ -25,7 +25,10 @@ async function getICloudClient() {
         defaultAccountType: 'caldav',
     });
     await client.login();
-    return client;
+    const calendars = await client.fetchCalendars();
+    const calendar = calendars.find(c => c.displayName === '직장') || calendars[0];
+    if (!calendar) return null;
+    return { client, calendar };
 }
 
 function buildIcs({ uid, name, date, time, location, groomPhone, bridePhone, products, memo }) {
@@ -60,18 +63,12 @@ function buildIcs({ uid, name, date, time, location, groomPhone, bridePhone, pro
     ].filter(Boolean).join('\r\n');
 }
 
-async function getICloudCalendar(client) {
-    const calendars = await client.fetchCalendars();
-    return calendars.find(c => c.displayName === '직장') || calendars[0];
-}
-
 // iCloud 이벤트 생성 (신규 예약)
 async function addToICloudCalendar({ notionPageId, name, date, time, location, groomPhone, bridePhone, products, memo }) {
     try {
-        const client = await getICloudClient();
-        if (!client) { console.log('iCloud 인증 정보 없음'); return; }
-        const calendar = await getICloudCalendar(client);
-        if (!calendar) { console.log('캘린더를 찾을 수 없음'); return; }
+        const ctx = await getICloudContext();
+        if (!ctx) { console.log('iCloud 인증 정보 없음'); return; }
+        const { client, calendar } = ctx;
         const uid = `wedding-${notionPageId}@app`;
         const ics = buildIcs({ uid, name, date, time, location, groomPhone, bridePhone, products, memo });
         if (!ics) return;
@@ -85,10 +82,9 @@ async function addToICloudCalendar({ notionPageId, name, date, time, location, g
 // iCloud 이벤트 수정 (기존 예약 업데이트)
 async function updateICloudCalendar({ notionPageId, name, date, time, location, groomPhone, bridePhone, products, memo }) {
     try {
-        const client = await getICloudClient();
-        if (!client) return;
-        const calendar = await getICloudCalendar(client);
-        if (!calendar) return;
+        const ctx = await getICloudContext();
+        if (!ctx) return;
+        const { client, calendar } = ctx;
         const uid = `wedding-${notionPageId}@app`;
         const ics = buildIcs({ uid, name, date, time, location, groomPhone, bridePhone, products, memo });
         if (!ics) return;
@@ -109,10 +105,9 @@ async function updateICloudCalendar({ notionPageId, name, date, time, location, 
 // iCloud 이벤트 삭제
 async function deleteFromICloudCalendar(notionPageId) {
     try {
-        const client = await getICloudClient();
-        if (!client) return;
-        const calendar = await getICloudCalendar(client);
-        if (!calendar) return;
+        const ctx = await getICloudContext();
+        if (!ctx) return;
+        const { client, calendar } = ctx;
         const uid = `wedding-${notionPageId}@app`;
         const objects = await client.fetchCalendarObjects({ calendar });
         const existing = objects.find(o => o.data?.includes(`UID:${uid}`));
@@ -333,7 +328,6 @@ app.get('/api/notion', async (req, res) => {
     }
 });
 
-// VENUE SEARCH (PROXY TO KAKAO)
 // VENUE SEARCH (PROXY TO KAKAO)
 app.get('/api/search-venue', async (req, res) => {
     const { query } = req.query;
