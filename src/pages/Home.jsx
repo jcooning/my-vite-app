@@ -617,6 +617,7 @@ const Home = () => {
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false); // 주소 검색 모달
   const [isPreviewOpen, setIsPreviewOpen] = useState(false); // 미리보기 모달
   const [isListOpen, setIsListOpen] = useState(false); // 예약 목록 접이식
+  const [activeTab, setActiveTab] = useState("form"); // 모바일 탭 전환
   const [timePickerOpen, setTimePickerOpen] = useState(false); // 시계 픽커 제어
 
   // 검색 관련 상태
@@ -1133,7 +1134,7 @@ ${options}${dataNoticeText}
   return (
     <ConfigProvider locale={locale}>
       <div className="dashboard-container">
-        <div className="left-panel">
+        <div className={`left-panel${activeTab === "form" ? " tab-active" : " tab-hidden"}`}>
           <div className="glass-panel" style={{ marginTop: "50px", paddingTop: "30px" }}>
             <div
               style={{
@@ -1695,7 +1696,7 @@ ${options}${dataNoticeText}
           </div>
         </div>
 
-        <div className="right-column">
+        <div className={`right-column${activeTab === "calendar" ? " tab-active" : " tab-hidden"}`}>
           {/* 캘린더 */}
           <div className="glass-panel calendar-panel">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
@@ -2019,6 +2020,23 @@ ${options}${dataNoticeText}
       >
         <ReceiptTemplate formData={formData} totalPrice={totalPrice} />
       </div>
+
+      <nav className="mobile-tab-bar">
+        <button
+          className={`mobile-tab-btn${activeTab === "form" ? " active" : ""}`}
+          onClick={() => setActiveTab("form")}
+        >
+          <FileTextOutlined />
+          <span>예약</span>
+        </button>
+        <button
+          className={`mobile-tab-btn${activeTab === "calendar" ? " active" : ""}`}
+          onClick={() => setActiveTab("calendar")}
+        >
+          <CalendarOutlined />
+          <span>캘린더</span>
+        </button>
+      </nav>
     </ConfigProvider>
   );
 };
