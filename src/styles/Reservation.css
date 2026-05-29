@@ -769,6 +769,16 @@
   .dashboard-container {
     padding-bottom: 70px;
   }
+
+  /* 신랑/신부 정보: 4열→2열 (신랑 한 줄, 신부 한 줄) */
+  .customer-info-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* 촬영상품/추가옵션 체크박스: 2열→1열 */
+  .checkbox-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 .place-search-input {

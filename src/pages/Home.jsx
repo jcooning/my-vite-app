@@ -1168,7 +1168,7 @@ ${options}${dataNoticeText}
             >
               {/* Customer Info */}
               <div
-                className="form-grid"
+                className="form-grid customer-info-grid"
                 style={{
                   gridTemplateColumns: "repeat(4, 1fr)",
                   gap: "10px",
