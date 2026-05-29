@@ -5,7 +5,8 @@
  * This utility is designed to work with a backend proxy.
  */
 
-const PROXY_URL = 'http://localhost:3001/api/notion'; // Local proxy or backend URL
+const BASE_URL = import.meta.env.VITE_PROXY_URL || 'http://localhost:3001';
+const PROXY_URL = `${BASE_URL}/api/notion`;
 
 export const saveReservationToNotion = async (reservationData) => {
     try {

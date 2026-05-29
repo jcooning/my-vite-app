@@ -763,7 +763,7 @@ const Home = () => {
     }
     try {
       const response = await fetch(
-        `http://localhost:3001/api/search-venue?query=${encodeURIComponent(val)}`,
+        `${import.meta.env.VITE_PROXY_URL || 'http://localhost:3001'}/api/search-venue?query=${encodeURIComponent(val)}`,
       );
       const data = await response.json();
       setPlaceResults(data);
