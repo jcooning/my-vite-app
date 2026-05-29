@@ -1710,12 +1710,12 @@ ${options}${dataNoticeText}
               </div>
             </div>
 
-            <div className="calendar-grid">
+            <div className="calendar-grid ios-calendar-grid">
               {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
                 <div key={d} className="calendar-day-header">{d}</div>
               ))}
               {Array.from({ length: firstDay }).map((_, i) => (
-                <div key={`empty-start-${i}`} className="calendar-cell empty" />
+                <div key={`empty-start-${i}`} className="ios-cal-cell empty" />
               ))}
               {calendarDays.map((day) => {
                 const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
@@ -1725,45 +1725,51 @@ ${options}${dataNoticeText}
                   selectedDate.getMonth() === currentMonth &&
                   selectedDate.getDate() === day;
                 const holidayName = holidays[dateStr];
-                const isHoliday = !!holidayName;
                 const dow = new Date(currentYear, currentMonth, day).getDay();
                 const isSunday = dow === 0;
                 const isSaturday = dow === 6;
+                const isHoliday = !!holidayName;
                 const isToday = dayjs().format("YYYY-MM-DD") === dateStr;
-                const eventColors = ["#4f8ef7"];
 
                 return (
                   <div
                     key={day}
-                    className={`calendar-cell ${isSelected ? "active" : ""} ${isToday ? "today" : ""}`}
+                    className={`ios-cal-cell${isSelected ? " selected" : ""}${isToday ? " today" : ""}`}
                     onClick={() => handleDateClick(day)}
                   >
-                    <span
-                      className={`day-number ${isToday ? "today-num" : ""}`}
-                      style={{ color: isHoliday || isSunday ? "#e17055" : isSaturday ? "#4f8ef7" : undefined }}
-                    >
+                    <span className={`ios-cal-day${isHoliday || isSunday ? " red" : isSaturday ? " blue" : ""}`}>
                       {day}
                     </span>
-                    {holidayName && (
-                      <div className="holiday-label">{holidayName}</div>
-                    )}
-                    {dayEvents.map((ev, idx) => (
-                      <div
-                        key={ev.id}
-                        className="event-bar"
-                        style={{ background: eventColors[idx % eventColors.length] }}
-                        onClick={(e) => { e.stopPropagation(); handleReservationClick(ev); }}
-                      >
-                        {ev.time || ev.weddingTime ? `${(ev.time || ev.weddingTime).slice(0, 5)} ` : ""}
-                        {ev.name}
-                      </div>
-                    ))}
+                    {holidayName && <span className="ios-holiday-name">{holidayName}</span>}
+                    {dayEvents.length > 0 && <span className="ios-cal-dot" />}
                   </div>
                 );
               })}
               {Array.from({ length: 42 - (firstDay + daysInMonth) }).map((_, i) => (
-                <div key={`empty-end-${i}`} className="calendar-cell empty" />
+                <div key={`empty-end-${i}`} className="ios-cal-cell empty" />
               ))}
+            </div>
+
+            {/* iOS-style event list for selected date */}
+            <div className="ios-event-list">
+              <div className="ios-event-list-header">
+                {selectedDate ? dayjs(selectedDate).format("M월 D일 dddd") : `${currentYear}년 ${currentMonth + 1}월`}
+              </div>
+              {(() => {
+                if (!selectedDate) return <div className="ios-no-event">날짜를 선택하세요</div>;
+                const dateStr = dayjs(selectedDate).format("YYYY-MM-DD");
+                const events = reservations.filter(r => (r.date || r.weddingDate) === dateStr);
+                if (events.length === 0) return <div className="ios-no-event">예약이 없습니다</div>;
+                return events.map(ev => (
+                  <div key={ev.id} className="ios-event-item" onClick={() => { handleReservationClick(ev); setActiveTab("form"); }}>
+                    <div className="ios-event-time">{(ev.time || ev.weddingTime || '').slice(0, 5)}</div>
+                    <div className="ios-event-content">
+                      <div className="ios-event-name">{ev.name}</div>
+                      {ev.location && <div className="ios-event-location">{ev.location}</div>}
+                    </div>
+                  </div>
+                ));
+              })()}
             </div>
           </div>
 

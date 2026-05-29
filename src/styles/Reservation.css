@@ -994,3 +994,149 @@
   cursor: pointer;
   transition: all 0.2s;
 }
+
+/* iOS-style calendar */
+.ios-calendar-grid {
+  border-left: none;
+  border-top: none;
+}
+
+.ios-cal-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 4px 0 6px;
+  cursor: pointer;
+  min-height: 52px;
+  gap: 2px;
+}
+
+.ios-cal-cell.empty {
+  cursor: default;
+}
+
+.ios-cal-cell:not(.empty):hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 8px;
+}
+
+.ios-cal-day {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.ios-cal-day.red { color: #e17055; }
+.ios-cal-day.blue { color: #4f8ef7; }
+
+.ios-cal-cell.today .ios-cal-day {
+  background: #888;
+  color: white !important;
+}
+
+.ios-cal-cell.selected .ios-cal-day {
+  background: #3d3d3d;
+  color: white !important;
+}
+
+.ios-holiday-name {
+  font-size: 0.55rem;
+  color: #e17055;
+  text-align: center;
+  line-height: 1;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 2px;
+}
+
+.ios-cal-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ff4081;
+  flex-shrink: 0;
+}
+
+.ios-cal-cell.selected .ios-cal-dot {
+  background: white;
+}
+
+/* iOS-style event list */
+.ios-event-list {
+  margin-top: 16px;
+  border-top: 1px solid #eee;
+  padding-top: 12px;
+}
+
+.ios-event-list-header {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #3d3d3d;
+  margin-bottom: 10px;
+  padding: 0 4px;
+}
+
+.ios-event-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 6px;
+  border-bottom: 1px solid #f5f5f5;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.ios-event-item:hover {
+  background: #f0f4ff;
+}
+
+.ios-event-item:last-child {
+  border-bottom: none;
+}
+
+.ios-event-time {
+  font-size: 0.8rem;
+  color: #888;
+  min-width: 42px;
+  padding-top: 3px;
+  font-weight: 500;
+}
+
+.ios-event-content {
+  flex: 1;
+  border-left: 3px solid #4f8ef7;
+  padding-left: 10px;
+  min-width: 0;
+}
+
+.ios-event-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #2d3436;
+}
+
+.ios-event-location {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ios-no-event {
+  text-align: center;
+  color: #ccc;
+  padding: 20px 0;
+  font-size: 0.9rem;
+}
