@@ -1220,7 +1220,7 @@ ${options}${dataNoticeText}
               {/* Schedule */}
               <div
                 className="form-grid schedule-form-grid"
-                style={{ gridTemplateColumns: "1fr 1fr", gap: "20px" }}
+                style={{ gap: "20px" }}
               >
                 <div className="form-group">
                   <label>날짜</label>
@@ -1441,7 +1441,7 @@ ${options}${dataNoticeText}
 
               <div
                 className="form-grid schedule-form-grid"
-                style={{ gridTemplateColumns: "1fr 1fr", gap: "20px" }}
+                style={{ gap: "20px" }}
               >
                 <div className="form-group">
                   <label>장소</label>

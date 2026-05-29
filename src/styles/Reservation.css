@@ -787,7 +787,7 @@
 
   /* 날짜/시간/장소/주소: 2열→1열 */
   .schedule-form-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr;
   }
 
   /* 촬영상품/추가옵션 체크박스: 2열→1열 */
