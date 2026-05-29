@@ -1863,25 +1863,23 @@ ${options}${dataNoticeText}
             </div>
           </Modal>
 
-          {/* 하단 버튼 영역 */}
-          <div style={{ display: "flex", gap: "12px" }}>
-            {/* 좌측: 2x2 버튼 그리드 */}
-            <div className="calendar-action-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", width: "50%" }}>
+          {/* 하단 버튼 영역 (데스크탑) */}
+          <div className="hide-on-mobile" style={{ display: "flex", gap: "12px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", width: "50%" }}>
               <button type="button" className="action-btn-secondary" style={{ padding: "10px" }} onClick={handleCopyText}>
                 <CopyOutlined /> 복사
               </button>
               <button type="button" className="action-btn-secondary" style={{ padding: "10px" }} onClick={handleSaveImage}>
                 <FileImageOutlined /> 저장
               </button>
-              <button type="button" className="action-btn-secondary hide-on-mobile" style={{ padding: "10px" }} onClick={() => setIsPreviewOpen(true)}>
+              <button type="button" className="action-btn-secondary" style={{ padding: "10px" }} onClick={() => setIsPreviewOpen(true)}>
                 <EyeOutlined /> 미리보기
               </button>
-              <button type="button" className="action-btn-secondary hide-on-mobile" style={{ padding: "10px" }} onClick={() => setIsListOpen(true)}>
+              <button type="button" className="action-btn-secondary" style={{ padding: "10px" }} onClick={() => setIsListOpen(true)}>
                 <CheckCircleOutlined /> 예약 목록
               </button>
             </div>
-            {/* 우측: 금액 + 등록 (데스크탑 전용) */}
-            <div className="hide-on-mobile" style={{ width: "50%", display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div style={{ width: "50%", display: "flex", flexDirection: "column", gap: "8px" }}>
               <div className="price-summary" style={{ margin: 0, flex: 1 }}>
                 <span className="price-label">최종 견적 금액</span>
                 <span className="price-value">₩ {totalPrice.toLocaleString()}</span>
@@ -1908,6 +1906,16 @@ ${options}${dataNoticeText}
                 {editingId ? "수정 완료" : "예약 등록"}
               </button>
             </div>
+          </div>
+
+          {/* Mobile-only: 캘린더 탭 하단 고정 바 */}
+          <div className="mobile-calendar-bottom">
+            <button type="button" className="action-btn-secondary" style={{ flex: 1, padding: "12px" }} onClick={handleCopyText}>
+              <CopyOutlined /> 복사
+            </button>
+            <button type="button" className="action-btn-secondary" style={{ flex: 1, padding: "12px" }} onClick={handleSaveImage}>
+              <FileImageOutlined /> 저장
+            </button>
           </div>
         </div>
       </div>
