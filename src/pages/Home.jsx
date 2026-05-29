@@ -1694,6 +1694,33 @@ ${options}${dataNoticeText}
               </div>
             </form>
           </div>
+
+          {/* Mobile-only: 예약 등록 고정 바 */}
+          <div className="mobile-form-bottom">
+            <div className="mobile-price-info">
+              <span>최종 견적</span>
+              <span>₩ {totalPrice.toLocaleString()}</span>
+            </div>
+            {editingId && (
+              <button type="button" onClick={handleDeleteCurrent} className="delete-btn" style={{ width: "auto", padding: "10px 14px", margin: 0, flexShrink: 0 }}>삭제</button>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                if (editingId) {
+                  if (window.confirm("변경 내용을 저장하시겠습니까?")) {
+                    handleSubmit({ preventDefault: () => {} });
+                  }
+                } else {
+                  handleSubmit({ preventDefault: () => {} });
+                }
+              }}
+              className="submit-btn"
+              style={{ width: "auto", padding: "12px 20px", margin: 0, flexShrink: 0 }}
+            >
+              {editingId ? "수정 완료" : "예약 등록"}
+            </button>
+          </div>
         </div>
 
         <div className={`right-column${activeTab === "calendar" ? " tab-active" : " tab-hidden"}`}>
@@ -1839,22 +1866,22 @@ ${options}${dataNoticeText}
           {/* 하단 버튼 영역 */}
           <div style={{ display: "flex", gap: "12px" }}>
             {/* 좌측: 2x2 버튼 그리드 */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", width: "50%" }}>
+            <div className="calendar-action-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", width: "50%" }}>
               <button type="button" className="action-btn-secondary" style={{ padding: "10px" }} onClick={handleCopyText}>
                 <CopyOutlined /> 복사
               </button>
               <button type="button" className="action-btn-secondary" style={{ padding: "10px" }} onClick={handleSaveImage}>
                 <FileImageOutlined /> 저장
               </button>
-              <button type="button" className="action-btn-secondary" style={{ padding: "10px" }} onClick={() => setIsPreviewOpen(true)}>
+              <button type="button" className="action-btn-secondary hide-on-mobile" style={{ padding: "10px" }} onClick={() => setIsPreviewOpen(true)}>
                 <EyeOutlined /> 미리보기
               </button>
-              <button type="button" className="action-btn-secondary" style={{ padding: "10px" }} onClick={() => setIsListOpen(true)}>
+              <button type="button" className="action-btn-secondary hide-on-mobile" style={{ padding: "10px" }} onClick={() => setIsListOpen(true)}>
                 <CheckCircleOutlined /> 예약 목록
               </button>
             </div>
-            {/* 우측: 금액 + 등록 */}
-            <div style={{ width: "50%", display: "flex", flexDirection: "column", gap: "8px" }}>
+            {/* 우측: 금액 + 등록 (데스크탑 전용) */}
+            <div className="hide-on-mobile" style={{ width: "50%", display: "flex", flexDirection: "column", gap: "8px" }}>
               <div className="price-summary" style={{ margin: 0, flex: 1 }}>
                 <span className="price-label">최종 견적 금액</span>
                 <span className="price-value">₩ {totalPrice.toLocaleString()}</span>
