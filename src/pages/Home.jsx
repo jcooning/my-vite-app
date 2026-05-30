@@ -1696,8 +1696,8 @@ ${options}${dataNoticeText}
         <div className={`right-column${activeTab === "calendar" ? " tab-active" : " tab-hidden"}`}>
           {/* 캘린더 */}
           <div className="glass-panel calendar-panel">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-              <h2 style={{ margin: 0, fontSize: "1.7rem", fontWeight: 700, color: "var(--primary-color)", display: "flex", alignItems: "center", gap: "8px" }}>
+            <div className="cal-header-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 className="cal-header-title" style={{ margin: 0, fontWeight: 700, color: "var(--primary-color)", display: "flex", alignItems: "center", gap: "8px" }}>
                 <CalendarOutlined /> {currentYear}년 {currentMonth + 1}월
               </h2>
               <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
