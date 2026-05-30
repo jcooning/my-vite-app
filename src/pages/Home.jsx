@@ -40,8 +40,6 @@ import {
   EyeOutlined,
   FileTextOutlined,
   PlusOutlined,
-  LeftOutlined,
-  RightOutlined,
 } from "@ant-design/icons";
 
 /**
@@ -612,7 +610,6 @@ const Home = () => {
   const [loading, setLoading] = useState(true); // 데이터 로딩 중 표시 여부
 
   // 모달(팝업창) 열림/닫힘 상태
-  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false); // 큰 달력 모달
   const [isPlaceModalOpen, setIsPlaceModalOpen] = useState(false); // 장소 검색 모달
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false); // 주소 검색 모달
   const [isPreviewOpen, setIsPreviewOpen] = useState(false); // 미리보기 모달
@@ -969,7 +966,6 @@ const Home = () => {
     const newDate = new Date(currentYear, currentMonth, day);
     setSelectedDate(newDate);
     setFilterDate(newDate);
-    setIsCalendarModalOpen(false); // 날짜 클릭 시 모달 닫기
   };
 
   const getDayOfWeek = (dateString) => {
@@ -977,11 +973,6 @@ const Home = () => {
     const days = ["일", "월", "화", "수", "목", "금", "토"];
     const date = new Date(dateString);
     return days[date.getDay()];
-  };
-
-  const onFullCalendarSelect = (date) => {
-    handleDateChange(date);
-    setIsCalendarModalOpen(false);
   };
 
   const filteredReservations = reservations.filter((res) => {
@@ -1224,37 +1215,14 @@ ${options}${dataNoticeText}
               >
                 <div className="form-group">
                   <label>날짜</label>
-                  <div style={{ display: "flex", gap: "8px" }}>
-                    <div
-                      className="custom-picker"
-                      style={{
-                        flex: 1,
-                        height: "38px",
-                        borderRadius: "10px",
-                        border: "1px solid #dfe6e9",
-                        background: "white",
-                        display: "flex",
-                        alignItems: "center",
-                        padding: "0 12px",
-                        cursor: "pointer",
-                        fontSize: "1rem",
-                        color: formData.weddingDate ? "#333" : "#bfbfbf",
-                      }}
-                      onClick={() => setIsCalendarModalOpen(true)}
-                    >
-                      {formData.weddingDate
-                        ? dayjs(formData.weddingDate).format("YYYY-MM-DD")
-                        : "날짜 선택"}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsCalendarModalOpen(true)}
-                      className="icon-btn-primary"
-                      style={{}}
-                    >
-                      <CalendarOutlined />
-                    </button>
-                  </div>
+                  <DatePicker
+                    value={formData.weddingDate ? dayjs(formData.weddingDate) : null}
+                    onChange={handleDateChange}
+                    format="YYYY-MM-DD"
+                    placeholder="날짜 선택"
+                    className="custom-picker"
+                    style={{ width: "100%", height: "38px", borderRadius: "10px" }}
+                  />
                 </div>
                 <div className="form-group">
                   <label>시간</label>
@@ -1921,81 +1889,6 @@ ${options}${dataNoticeText}
           </div>
         </div>
       </div>
-
-      <Modal
-        title={null}
-        open={isCalendarModalOpen}
-        onCancel={() => setIsCalendarModalOpen(false)}
-        footer={null}
-        width={800}
-        centered
-        bodyStyle={{ padding: "0" }}
-      >
-        <div className="simple-calendar-container">
-          <div
-            className="simple-calendar-header"
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: "30px",
-              padding: "15px 0",
-            }}
-          >
-            <button onClick={handlePrevMonth} className="action-btn-secondary">
-              <LeftOutlined /> 이전
-            </button>
-            <h3 style={{ margin: 0, fontSize: "1.8rem", fontWeight: 800 }}>
-              {currentYear}년 {currentMonth + 1}월
-            </h3>
-            <button onClick={handleNextMonth} className="action-btn-secondary">
-              다음 <RightOutlined />
-            </button>
-          </div>
-
-          <div className="simple-calendar-grid">
-            {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
-              <div key={d} className="calendar-weekday">
-                {d}
-              </div>
-            ))}
-
-            {/* 앞쪽 빈 칸 */}
-            {Array.from({ length: firstDay }).map((_, i) => (
-              <div
-                key={`empty-${i}`}
-                className="simple-calendar-day empty"
-              ></div>
-            ))}
-
-            {/* 날짜들 */}
-            {calendarDays.map((day) => {
-              const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-              const hasEvent = reservations.some(
-                (r) => (r.date || r.weddingDate) === dateStr,
-              );
-              const isSelected = formData.weddingDate === dateStr;
-              const isToday = dayjs().format("YYYY-MM-DD") === dateStr;
-              const dayOfWeek = new Date(
-                currentYear,
-                currentMonth,
-                day,
-              ).getDay();
-
-              return (
-                <div
-                  key={day}
-                  className={`simple-calendar-day ${isSelected ? "active" : ""} ${isToday ? "today" : ""} ${dayOfWeek === 0 ? "sunday" : ""} ${dayOfWeek === 6 ? "saturday" : ""}`}
-                  onClick={() => handleDateClick(day)}
-                >
-                  <span className="day-num">{day}</span>
-                  {hasEvent && <div className="event-dot" />}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </Modal>
 
       <Modal
         title="장소 검색"
