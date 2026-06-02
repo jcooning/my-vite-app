@@ -5,7 +5,7 @@
  * This utility is designed to work with a backend proxy.
  */
 
-const BASE_URL = import.meta.env.VITE_PROXY_URL || 'http://localhost:3001';
+const BASE_URL = import.meta.env.VITE_PROXY_URL || 'https://wedding-proxy-8byu.onrender.com';
 const PROXY_URL = `${BASE_URL}/api/notion`;
 
 export const saveReservationToNotion = async (reservationData) => {

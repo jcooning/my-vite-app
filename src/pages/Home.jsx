@@ -93,7 +93,14 @@ const checkItems = [
   "주례여부",
   "예물교환",
   "축가체크",
+  "부케신",
+  "키스신",
 ];
+
+const checkItemLabels = {
+  "모바일청첩장": "모바일\n청첩장",
+  "종이청첩장": "종이\n청첩장",
+};
 
 // Holidays Data
 const holidays = {
@@ -763,7 +770,11 @@ const Home = () => {
     }
     try {
       const response = await fetch(
+<<<<<<< HEAD
         `${import.meta.env.VITE_PROXY_URL || 'http://localhost:3001'}/api/search-venue?query=${encodeURIComponent(val)}`,
+=======
+        `https://wedding-proxy-8byu.onrender.com/api/search-venue?query=${encodeURIComponent(val)}`,
+>>>>>>> 519051f (PWA 설정 및 모바일 레이아웃 수정)
       );
       const data = await response.json();
       setPlaceResults(data);
@@ -1629,9 +1640,9 @@ ${options}${dataNoticeText}
                       >
                         <span
                           className="happy-call-label"
-                          style={{ fontSize: "0.9rem" }}
+                          style={{ fontSize: "0.9rem", whiteSpace: "pre-line", textAlign: "center" }}
                         >
-                          {item}
+                          {checkItemLabels[item] || item}
                         </span>
                         <div className="ox-group">
                           <button
