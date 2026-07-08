@@ -760,7 +760,6 @@
     font-size: 0.65rem;
   }
 
-<<<<<<< HEAD
   .ios-cal-day {
     width: 30px;
     height: 30px;
@@ -951,7 +950,8 @@
 
   .ios-event-location {
     font-size: 0.75rem;
-=======
+  }
+
   .calendar-grid {
     width: 100%;
     box-sizing: border-box;
@@ -964,7 +964,6 @@
   .happy-call-label {
     font-size: 0.8rem !important;
     line-height: 1.3;
->>>>>>> 519051f (PWA 설정 및 모바일 레이아웃 수정)
   }
 }
 

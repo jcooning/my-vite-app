@@ -754,11 +754,7 @@ const Home = () => {
     }
     try {
       const response = await fetch(
-<<<<<<< HEAD
-        `${import.meta.env.VITE_PROXY_URL || 'http://localhost:3001'}/api/search-venue?query=${encodeURIComponent(val)}`,
-=======
-        `https://wedding-proxy-8byu.onrender.com/api/search-venue?query=${encodeURIComponent(val)}`,
->>>>>>> 519051f (PWA 설정 및 모바일 레이아웃 수정)
+        `${import.meta.env.VITE_PROXY_URL || 'https://wedding-proxy-8byu.onrender.com'}/api/search-venue?query=${encodeURIComponent(val)}`,
       );
       const data = await response.json();
       setPlaceResults(data);
