@@ -49,16 +49,21 @@ function buildIcs({ uid, name, date, time, location, groomPhone, bridePhone, pro
         return null;
     }
     const summary = name ? `${name} 예식` : '예식 예약';
-    const productStr = products && products.length > 0 ? `\\n상품: ${products.join(', ')}` : '';
     const escapedMemo = memo ? memo.replace(/\n/g, '\\n') : '';
-    const memoStr = escapedMemo ? `\\n메모: ${escapedMemo}` : '';
-    const desc = `연락처: ${groomPhone || '-'} / ${bridePhone || '-'}${productStr}${memoStr}`;
+    // 연락처는 iCloud가 자동으로 "통화" 연락처로 잡아주므로 메모(DESCRIPTION)에서는 제외 (중복 방지)
+    const descParts = [];
+    if (products && products.length > 0) descParts.push(`상품: ${products.join(', ')}`);
+    if (escapedMemo) descParts.push(`메모: ${escapedMemo}`);
+    const desc = descParts.join('\\n');
+    // 연락처는 메모(DESCRIPTION) 대신 URL(tel:)로 붙인다 → iCloud에서 클릭 시 전화 걸리는 링크로만 표시(중복 방지)
+    const contactPhone = (groomPhone || bridePhone || '').replace(/[^0-9]/g, '');
     return [
         'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//WeddingApp//KO',
         'BEGIN:VEVENT',
         `UID:${uid}`, `DTSTAMP:${dtstamp}`, dtstart, dtend,
         `SUMMARY:${summary}`, `DESCRIPTION:${desc}`,
         location ? `LOCATION:${location}` : null,
+        contactPhone ? `URL:tel:${contactPhone}` : null,
         'END:VEVENT', 'END:VCALENDAR',
     ].filter(Boolean).join('\r\n');
 }

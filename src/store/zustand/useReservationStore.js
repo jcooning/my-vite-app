@@ -15,7 +15,7 @@ export const useReservationStore = create((set) => ({
     selectedDate: new Date(),
     setSelectedDate: (date) => set({ selectedDate: date }),
     addReservation: (reservation) => set((state) => ({
-        reservations: [...state.reservations, { ...reservation, id: Date.now() }]
+        reservations: [...state.reservations, { ...reservation, id: reservation.id ?? Date.now() }]
     })),
     removeReservation: (id) => set((state) => ({
         reservations: state.reservations.filter(r => r.id !== id)

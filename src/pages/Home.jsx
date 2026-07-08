@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
+import { toPng } from "html-to-image";
 import "../styles/Reservation.css";
 import { useReservationStore } from "../store/zustand/useReservationStore";
 import {
@@ -257,192 +258,176 @@ const ReceiptTemplate = ({ formData, totalPrice }) => {
             [ 예약 확정 내역 ]
           </h3>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(120px, auto) 1fr",
-              gap: "15px 30px",
-              alignItems: "start",
-            }}
-          >
-            <span
-              style={{ color: "#888", fontSize: "1.0rem", fontWeight: "600" }}
-            >
-              GROOM & BRIDE
-            </span>
-            <span style={{ fontWeight: "600", fontSize: "1.1rem" }}>
-              {formData.groomName}
-              {formData.groomPhone ? (
-                <span style={{ color: "#888" }}> {formData.groomPhone}</span>
-              ) : (
-                ""
-              )}{" "}
-              & {formData.brideName}
-              {formData.bridePhone ? (
-                <span style={{ color: "#888" }}> {formData.bridePhone}</span>
-              ) : (
-                ""
-              )}
-            </span>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <tbody>
+              <tr>
+                <td style={{ color: "#888", fontSize: "1.0rem", fontWeight: "600", verticalAlign: "top", whiteSpace: "nowrap", width: "120px", padding: "7px 30px 7px 0" }}>
+                  GROOM &amp; BRIDE
+                </td>
+                <td style={{ fontWeight: "600", fontSize: "1.1rem", verticalAlign: "top", padding: "7px 0" }}>
+                  {formData.groomName}
+                  {formData.groomPhone ? (
+                    <span style={{ color: "#888" }}> {formData.groomPhone}</span>
+                  ) : (
+                    ""
+                  )}{" "}
+                  &amp; {formData.brideName}
+                  {formData.bridePhone ? (
+                    <span style={{ color: "#888" }}> {formData.bridePhone}</span>
+                  ) : (
+                    ""
+                  )}
+                </td>
+              </tr>
 
-            <span
-              style={{ color: "#888", fontSize: "1.0rem", fontWeight: "600" }}
-            >
-              WEDDING DATE
-            </span>
-            <span style={{ fontWeight: "700", fontSize: "1.2rem" }}>
-              {formData.weddingDate
-                ? dayjs(formData.weddingDate).format("YYYY년 M월 D일 dddd")
-                : ""}{" "}
-              {formData.weddingTime}
-            </span>
+              <tr>
+                <td style={{ color: "#888", fontSize: "1.0rem", fontWeight: "600", verticalAlign: "top", whiteSpace: "nowrap", width: "120px", padding: "7px 30px 7px 0" }}>
+                  WEDDING DATE
+                </td>
+                <td style={{ fontWeight: "700", fontSize: "1.2rem", verticalAlign: "top", padding: "7px 0" }}>
+                  {formData.weddingDate
+                    ? dayjs(formData.weddingDate).format("YYYY년 M월 D일 dddd")
+                    : ""}{" "}
+                  {formData.weddingTime}
+                </td>
+              </tr>
 
-            <span
-              style={{ color: "#888", fontSize: "1.0rem", fontWeight: "600" }}
-            >
-              LOCATION
-            </span>
-            <span style={{ fontWeight: "600", fontSize: "1.1rem" }}>
-              {formData.location}{" "}
-              <span
-                style={{
-                  fontWeight: "400",
-                  fontSize: "1.0rem",
-                  color: "#666",
-                  display: "block",
-                  marginTop: "4px",
-                }}
-              >
-                {formData.address}
-              </span>
-            </span>
+              <tr>
+                <td style={{ color: "#888", fontSize: "1.0rem", fontWeight: "600", verticalAlign: "top", whiteSpace: "nowrap", width: "120px", padding: "7px 30px 7px 0" }}>
+                  LOCATION
+                </td>
+                <td style={{ fontWeight: "600", fontSize: "1.1rem", verticalAlign: "top", padding: "7px 0" }}>
+                  {formData.location}
+                  <span
+                    style={{
+                      fontWeight: "400",
+                      fontSize: "1.0rem",
+                      color: "#666",
+                      display: "block",
+                      marginTop: "4px",
+                    }}
+                  >
+                    {formData.address}
+                  </span>
+                </td>
+              </tr>
 
-            <div
-              style={{
-                gridColumn: "1 / span 2",
-                height: "1px",
-                background: "#eee",
-                margin: "15px 0",
-              }}
-            ></div>
+              <tr>
+                <td colSpan={2} style={{ padding: 0 }}>
+                  <div style={{ height: "1px", background: "#eee", margin: "15px 0" }}></div>
+                </td>
+              </tr>
 
-            <span
-              style={{ color: "#888", fontSize: "1.0rem", fontWeight: "600" }}
-            >
-              선택 상품
-            </span>
-            <span
-              style={{
-                fontWeight: "700",
-                fontSize: "1.2rem",
-                color: "#2c3149",
-              }}
-            >
-              {formData.products.length > 0
-                ? formData.products.map((pName, index) => {
-                    const p = mainProducts.find((mp) => mp.name === pName);
-                    return (
-                      <React.Fragment key={pName}>
-                        {pName}{" "}
-                        {p ? (
-                          <span
-                            style={{
-                              fontSize: "0.9em",
-                              color: "#888",
-                              fontWeight: "500",
-                            }}
-                          >
-                            {p.price.toLocaleString()}원
-                          </span>
-                        ) : (
-                          ""
-                        )}
-                        {index < formData.products.length - 1 ? ", " : ""}
-                      </React.Fragment>
-                    );
-                  })
-                : "-"}
-            </span>
+              <tr>
+                <td style={{ color: "#888", fontSize: "1.0rem", fontWeight: "600", verticalAlign: "top", whiteSpace: "nowrap", width: "120px", padding: "7px 30px 7px 0" }}>
+                  선택 상품
+                </td>
+                <td style={{ fontWeight: "700", fontSize: "1.2rem", color: "#2c3149", verticalAlign: "top", padding: "7px 0" }}>
+                  {formData.products.length > 0
+                    ? formData.products.map((pName, index) => {
+                        const p = mainProducts.find((mp) => mp.name === pName);
+                        return (
+                          <React.Fragment key={pName}>
+                            {pName}{" "}
+                            {p ? (
+                              <span
+                                style={{
+                                  fontSize: "0.9em",
+                                  color: "#888",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                {p.price.toLocaleString()}원
+                              </span>
+                            ) : (
+                              ""
+                            )}
+                            {index < formData.products.length - 1 ? ", " : ""}
+                          </React.Fragment>
+                        );
+                      })
+                    : "-"}
+                </td>
+              </tr>
 
-            {/* 5. Product Description (moved directly below products) */}
-            <span
-              style={{ color: "#888", fontSize: "1.0rem", fontWeight: "600" }}
-            >
-              상품 구성
-            </span>
-            <span
-              style={{
-                fontSize: "1.05rem",
-                color: "#444",
-                whiteSpace: "pre-line",
-                lineHeight: "1.6",
-                background: "#f9f9fb",
-                padding: "12px",
-                borderRadius: "8px",
-              }}
-            >
-              {productDesc}
-            </span>
+              {/* 5. Product Description (moved directly below products) */}
+              <tr>
+                <td style={{ color: "#888", fontSize: "1.0rem", fontWeight: "600", verticalAlign: "top", whiteSpace: "nowrap", width: "120px", padding: "7px 30px 7px 0" }}>
+                  상품 구성
+                </td>
+                <td style={{ verticalAlign: "top", padding: "7px 0" }}>
+                  <div
+                    style={{
+                      fontSize: "1.05rem",
+                      color: "#444",
+                      whiteSpace: "pre-line",
+                      lineHeight: "1.6",
+                      background: "#f9f9fb",
+                      padding: "12px",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    {productDesc}
+                  </div>
+                </td>
+              </tr>
 
-            <span
-              style={{ color: "#888", fontSize: "1.0rem", fontWeight: "600" }}
-            >
-              추가 옵션
-            </span>
-            <span style={{ fontWeight: "600", fontSize: "1.1rem" }}>
-              {formData.options.length > 0
-                ? formData.options.map((oName, index) => {
-                    const o = optionsList.find((ol) => ol.name === oName);
-                    return (
-                      <React.Fragment key={oName}>
-                        {oName}{" "}
-                        {o && o.price > 0 ? (
-                          <span
-                            style={{
-                              fontSize: "0.9em",
-                              color: "#888",
-                              fontWeight: "500",
-                            }}
-                          >
-                            {o.price.toLocaleString()}원
-                          </span>
-                        ) : (
-                          ""
-                        )}
-                        {index < formData.options.length - 1 ? ", " : ""}
-                      </React.Fragment>
-                    );
-                  })
-                : "-"}
-            </span>
+              <tr>
+                <td style={{ color: "#888", fontSize: "1.0rem", fontWeight: "600", verticalAlign: "top", whiteSpace: "nowrap", width: "120px", padding: "7px 30px 7px 0" }}>
+                  추가 옵션
+                </td>
+                <td style={{ fontWeight: "600", fontSize: "1.1rem", verticalAlign: "top", padding: "7px 0" }}>
+                  {formData.options.length > 0
+                    ? formData.options.map((oName, index) => {
+                        const o = optionsList.find((ol) => ol.name === oName);
+                        return (
+                          <React.Fragment key={oName}>
+                            {oName}{" "}
+                            {o && o.price > 0 ? (
+                              <span
+                                style={{
+                                  fontSize: "0.9em",
+                                  color: "#888",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                {o.price.toLocaleString()}원
+                              </span>
+                            ) : (
+                              ""
+                            )}
+                            {index < formData.options.length - 1 ? ", " : ""}
+                          </React.Fragment>
+                        );
+                      })
+                    : "-"}
+                </td>
+              </tr>
 
-            {formData.memo ? (
-              <>
-                <span
-                  style={{
-                    color: "#888",
-                    fontSize: "1.0rem",
-                    fontWeight: "600",
-                  }}
-                >
-                  CHECK
-                </span>
-                <span
-                  style={{
-                    fontSize: "1.0rem",
-                    color: "#444",
-                    whiteSpace: "pre-line",
-                    lineHeight: "1.6",
-                    background: "#f9f9fb",
-                    padding: "12px",
-                    borderRadius: "8px",
-                  }}
-                >
-                  {formData.memo}
-                </span>
-              </>
-            ) : null}
-          </div>
+              {formData.memo ? (
+                <tr>
+                  <td style={{ color: "#888", fontSize: "1.0rem", fontWeight: "600", verticalAlign: "top", whiteSpace: "nowrap", width: "120px", padding: "7px 30px 7px 0" }}>
+                    CHECK
+                  </td>
+                  <td style={{ verticalAlign: "top", padding: "7px 0" }}>
+                    <div
+                      style={{
+                        fontSize: "1.0rem",
+                        color: "#444",
+                        whiteSpace: "pre-line",
+                        lineHeight: "1.6",
+                        background: "#f9f9fb",
+                        padding: "12px",
+                        borderRadius: "8px",
+                      }}
+                    >
+                      {formData.memo}
+                    </div>
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
         </div>
 
         {/* 6. Pricing */}
@@ -470,13 +455,12 @@ const ReceiptTemplate = ({ formData, totalPrice }) => {
         {/* 7. Notices */}
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            display: "flex",
             gap: "30px",
             marginTop: "50px",
           }}
         >
-          <div>
+          <div style={{ flex: 1 }}>
             <h4
               style={{
                 fontSize: "1.0rem",
@@ -518,7 +502,7 @@ const ReceiptTemplate = ({ formData, totalPrice }) => {
               )}
             </div>
           </div>
-          <div>
+          <div style={{ flex: 1 }}>
             <h4
               style={{
                 fontSize: "1.0rem",
@@ -845,10 +829,13 @@ const Home = () => {
           "연동된 노션 페이지 ID를 찾을 수 없습니다. 로컬 정보만 수정되었습니다.",
         );
       }
-      handleReset();
+      // 저장 후에도 입력한 내용을 그대로 유지 (미리보기·이미지 저장 바로 가능)
+      // 새로 작성하려면 "새 예약" 버튼을 사용
     } else {
       const creationId = Date.now();
       addReservation({ ...reservationPayload, id: creationId });
+      // 등록 직후 편집 상태로 전환 → 폼 유지 + 다시 등록해도 중복 생성 대신 수정됨
+      setEditingId(creationId);
       try {
         const response = await saveReservationToNotion({
           name: reservationPayload.name,
@@ -973,10 +960,36 @@ const Home = () => {
 
   const handleDateClick = (day) => {
     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    setFormData((prev) => ({ ...prev, weddingDate: dateStr }));
     const newDate = new Date(currentYear, currentMonth, day);
     setSelectedDate(newDate);
     setFilterDate(newDate);
+
+    // 날짜에 저장된 예약이 있으면 곧바로 상담표(폼)에 불러온다. (iCloud 캘린더처럼)
+    const dayEvents = reservations.filter(
+      (r) => (r.date || r.weddingDate) === dateStr,
+    );
+    if (dayEvents.length > 0) {
+      handleEdit(dayEvents[0]);
+    } else {
+      // 예약이 없는 날짜면 이전 데이터를 비우고 그 날짜만 채운 새 상담표로 시작
+      setEditingId(null);
+      setFormData({
+        groomName: "",
+        brideName: "",
+        groomPhone: "",
+        bridePhone: "",
+        weddingDate: dateStr,
+        weddingTime: "",
+        location: "",
+        address: "",
+        products: [],
+        options: [],
+        checks: [],
+        memo: "",
+        privateMemo: "",
+        기타Price: "",
+      });
+    }
   };
 
   const getDayOfWeek = (dateString) => {
@@ -1103,33 +1116,50 @@ ${options}${dataNoticeText}
   };
 
   const handleSaveImage = () => {
-    if (!window.html2canvas) {
-      alert(
-        "이미지 저장 도구가 로딩 중이거나 실패했습니다. 잠시 후 다시 시도해주세요.",
-      );
-      return;
-    }
     const element = document.getElementById("receipt-capture-area");
     if (!element) return;
-    window
-      .html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
+
+    const download = (dataUrl) => {
+      const link = document.createElement("a");
+      const dateStr = formData.weddingDate
+        ? formData.weddingDate.replace(/-/g, "")
+        : "date";
+      link.download = `예약확정_${formData.groomName || "고객"}_${dateStr}.png`;
+      link.href = dataUrl;
+      link.click();
+    };
+
+    // 대체 수단: html2canvas (html-to-image 실패 시)
+    const fallback = (reason) => {
+      console.error("html-to-image 실패, html2canvas로 대체:", reason);
+      if (!window.html2canvas) {
+        alert("이미지 저장에 실패했습니다: " + (reason?.message || reason));
+        return;
+      }
+      window
+        .html2canvas(element, { scale: 2, useCORS: true, backgroundColor: "#ffffff" })
+        .then((canvas) => download(canvas.toDataURL("image/png")))
+        .catch((e) => {
+          console.error("html2canvas도 실패:", e);
+          alert("이미지 저장에 실패했습니다: " + (e?.message || e));
+        });
+    };
+
+    // html-to-image: 텍스트를 브라우저 네이티브로 렌더링하므로 글자/공백 겹침이 없다.
+    // skipFonts: 시스템 폰트라 임베딩 불필요 (외부 폰트/CDN 접근 실패로 저장이 멈추는 것을 방지)
+    toPng(element, {
+      pixelRatio: 2,
+      backgroundColor: "#ffffff",
+      skipFonts: true,
+    })
+      .then((dataUrl) => {
+        if (!dataUrl || dataUrl.length < 1000) {
+          fallback("빈 이미지");
+          return;
+        }
+        download(dataUrl);
       })
-      .then((canvas) => {
-        const link = document.createElement("a");
-        const dateStr = formData.weddingDate
-          ? formData.weddingDate.replace(/-/g, "")
-          : "date";
-        link.download = `예약확정_${formData.groomName || "고객"}_${dateStr}.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      })
-      .catch((err) => {
-        console.error("Image save failed:", err);
-        alert("이미지 저장에 실패했습니다.");
-      });
+      .catch(fallback);
   };
 
   /* 7. 화면 렌더링 (JSX) */
@@ -1683,7 +1713,10 @@ ${options}${dataNoticeText}
               <span>₩ {totalPrice.toLocaleString()}</span>
             </div>
             {editingId && (
-              <button type="button" onClick={handleDeleteCurrent} className="delete-btn" style={{ width: "auto", padding: "10px 14px", margin: 0, flexShrink: 0 }}>삭제</button>
+              <>
+                <button type="button" onClick={handleReset} className="action-btn-secondary" style={{ width: "auto", padding: "10px 14px", margin: 0, flexShrink: 0 }}>새 예약</button>
+                <button type="button" onClick={handleDeleteCurrent} className="delete-btn" style={{ width: "auto", padding: "10px 14px", margin: 0, flexShrink: 0 }}>삭제</button>
+              </>
             )}
             <button
               type="button"
@@ -1769,7 +1802,7 @@ ${options}${dataNoticeText}
                 const events = reservations.filter(r => (r.date || r.weddingDate) === dateStr);
                 if (events.length === 0) return <div className="ios-no-event">예약이 없습니다</div>;
                 return events.map(ev => (
-                  <div key={ev.id} className="ios-event-item" onClick={() => { setViewingRes(ev); setIsViewOpen(true); }}>
+                  <div key={ev.id} className="ios-event-item" onClick={() => { handleReservationClick(ev); setActiveTab("form"); }}>
                     <div className="ios-event-time">{(ev.time || ev.weddingTime || '').slice(0, 5)}</div>
                     <div className="ios-event-content">
                       <div className="ios-event-name">{ev.name}</div>
@@ -1866,9 +1899,14 @@ ${options}${dataNoticeText}
                 <span className="price-value">₩ {totalPrice.toLocaleString()}</span>
               </div>
               {editingId && (
-                <button type="button" onClick={handleDeleteCurrent} className="delete-btn">
-                  예약 삭제
-                </button>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button type="button" onClick={handleReset} className="action-btn-secondary" style={{ flex: 1, padding: "10px" }}>
+                    + 새 예약
+                  </button>
+                  <button type="button" onClick={handleDeleteCurrent} className="delete-btn" style={{ flex: 1, margin: 0 }}>
+                    예약 삭제
+                  </button>
+                </div>
               )}
               <button
                 type="button"
@@ -1961,11 +1999,23 @@ ${options}${dataNoticeText}
         </div>
       </Modal>
 
+      {/* 캡처 영역: 화면 좌상단에 두되 0x0 컨테이너로 클리핑하여 사용자에겐 안 보이게 함.
+          (html-to-image는 화면 밖(-9999px) 요소를 빈 이미지로 캡처하므로 화면 안에 둬야 한다) */}
       <div
-        id="receipt-capture-area"
-        style={{ position: "fixed", left: "-9999px", top: 0 }}
+        style={{
+          position: "fixed",
+          left: 0,
+          top: 0,
+          width: 0,
+          height: 0,
+          overflow: "hidden",
+          zIndex: -1,
+          pointerEvents: "none",
+        }}
       >
-        <ReceiptTemplate formData={formData} totalPrice={totalPrice} />
+        <div id="receipt-capture-area" style={{ width: "800px" }}>
+          <ReceiptTemplate formData={formData} totalPrice={totalPrice} />
+        </div>
       </div>
 
       {/* 예약 조회 모달 */}
