@@ -605,7 +605,7 @@ const Home = () => {
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false); // 주소 검색 모달
   const [isPreviewOpen, setIsPreviewOpen] = useState(false); // 미리보기 모달
   const [isListOpen, setIsListOpen] = useState(false); // 예약 목록 접이식
-  const [activeTab, setActiveTab] = useState("form"); // 모바일 탭 전환
+  const [activeTab, setActiveTab] = useState("calendar"); // 모바일 탭 전환 (기본: 캘린더)
   const [isViewOpen, setIsViewOpen] = useState(false); // 조회 모달
   const [viewingRes, setViewingRes] = useState(null); // 조회 중인 예약
   const [timePickerOpen, setTimePickerOpen] = useState(false); // 시계 픽커 제어
