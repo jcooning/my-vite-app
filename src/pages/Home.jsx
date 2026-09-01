@@ -187,11 +187,36 @@ const holidays = {
  * @param {Object} props - 부모로부터 전달받은 데이터 (formData, totalPrice)
  * 역할을 하는 순수 UI 컴포넌트입니다. 계약서나 영수증 모양을 화면에 그리거나 이미지로 저장할 때 사용됩니다.
  */
+// 현금(워크인) 손님 입금 계좌 (고정)
+const DEPOSIT_ACCOUNT = "우리은행 010 3073 1369 박정훈";
+
 const ReceiptTemplate = ({ formData, totalPrice }) => {
   const selectedProduct = mainProducts.find((p) =>
     formData.products.includes(p.name),
   );
   const productDesc = selectedProduct ? selectedProduct.desc : "-";
+
+  // 현금(워크인) 손님 여부 및 결제 금액
+  const isCash = formData.customerType === "cash";
+  const displayTotal = isCash
+    ? Number(String(formData.cashTotal).replace(/[^\d]/g, "")) || 0
+    : totalPrice;
+  const depositAmt = Number(String(formData.deposit).replace(/[^\d]/g, "")) || 0;
+  // 잔금 = 총액 − 계약금 (자동 계산)
+  const balanceAmt = Math.max(displayTotal - depositAmt, 0);
+
+  // 데이터 안내 첫 줄: 현금(워크인) 손님은 "잔금입금", 플랫폼 손님은 "거래확정"
+  const dataFirstLine = isCash ? (
+    <>
+      • 데이터는 예식후 당일 <strong>잔금입금</strong> 후 전송이 됩니다.
+      <br />
+    </>
+  ) : (
+    <>
+      • 데이터는 예식후 당일 <strong>"거래확정"</strong> 후 전송이 됩니다.
+      <br />
+    </>
+  );
 
   return (
     <div
@@ -447,10 +472,69 @@ const ReceiptTemplate = ({ formData, totalPrice }) => {
           </span>
           <div style={{ textAlign: "right" }}>
             <span style={{ fontSize: "1.8rem", fontWeight: "800" }}>
-              ₩ {Number(totalPrice).toLocaleString()}
+              ₩ {Number(displayTotal).toLocaleString()}
             </span>
           </div>
         </div>
+
+        {/* 6-2. 현금(워크인) 손님 입금 안내 */}
+        {isCash && (
+          <div
+            style={{
+              marginTop: "20px",
+              border: "1px solid #e5e7eb",
+              borderRadius: "12px",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                background: "#f9f9fb",
+                padding: "12px 20px",
+                fontWeight: "700",
+                fontSize: "1.0rem",
+                color: "#2c3149",
+                borderBottom: "1px solid #eee",
+              }}
+            >
+              입금 안내
+            </div>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <tbody>
+                <tr>
+                  <td style={{ color: "#888", fontSize: "1.0rem", fontWeight: "600", padding: "10px 20px", width: "170px", verticalAlign: "top", borderBottom: "1px solid #f2f2f2" }}>
+                    계약금
+                    <div style={{ fontSize: "0.78rem", fontWeight: "500", color: "#aaa", marginTop: "2px" }}>
+                      (견적일 당일까지 유효)
+                    </div>
+                  </td>
+                  <td style={{ fontSize: "1.1rem", fontWeight: "700", color: "#2c3149", padding: "10px 20px", verticalAlign: "top", borderBottom: "1px solid #f2f2f2" }}>
+                    {depositAmt.toLocaleString()}원
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ color: "#888", fontSize: "1.0rem", fontWeight: "600", padding: "10px 20px", verticalAlign: "top", borderBottom: "1px solid #f2f2f2" }}>
+                    잔금
+                    <div style={{ fontSize: "0.78rem", fontWeight: "500", color: "#aaa", marginTop: "2px" }}>
+                      (예식후 당일 입금원칙)
+                    </div>
+                  </td>
+                  <td style={{ fontSize: "1.1rem", fontWeight: "700", color: "#2c3149", padding: "10px 20px", verticalAlign: "top", borderBottom: "1px solid #f2f2f2" }}>
+                    {balanceAmt.toLocaleString()}원
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ color: "#888", fontSize: "1.0rem", fontWeight: "600", padding: "10px 20px", whiteSpace: "nowrap" }}>
+                    입금계좌
+                  </td>
+                  <td style={{ fontSize: "1.05rem", fontWeight: "600", color: "#333", padding: "10px 20px" }}>
+                    {DEPOSIT_ACCOUNT}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* 7. Notices */}
         <div
@@ -517,8 +601,7 @@ const ReceiptTemplate = ({ formData, totalPrice }) => {
             >
               {formData.products.includes("Premium Album Package") || formData.products.includes("Special Album") ? (
                 <>
-                  • 데이터는 예식후 당일 <strong>"거래확정"</strong> 후 전송이 됩니다.
-                  <br />
+                  {dataFirstLine}
                   • 5일 내 서비스컷 10컷 카톡으로 보내드려요.
                   <br />
                   • 10일 내 전체원본 e메일 전송해 드립니다.
@@ -527,8 +610,7 @@ const ReceiptTemplate = ({ formData, totalPrice }) => {
                 </>
               ) : formData.products.includes("Basic Album") ? (
                 <>
-                  • 데이터는 예식후 당일 <strong>"거래확정"</strong> 후 전송이 됩니다.
-                  <br />
+                  {dataFirstLine}
                   • 5일 내 서비스컷 10컷 카톡으로 보내드려요.
                   <br />
                   • 10일 내 전체원본 e메일 전송해 드립니다.
@@ -537,8 +619,7 @@ const ReceiptTemplate = ({ formData, totalPrice }) => {
                 </>
               ) : formData.products.includes("Private Data") ? (
                 <>
-                  • 데이터는 예식후 당일 <strong>"거래확정"</strong> 후 전송이 됩니다.
-                  <br />
+                  {dataFirstLine}
                   • 5일 내 서비스컷 10컷 카톡으로 보내드려요.
                   <br />
                   • 10일 내 전체원본 e메일 전송해 드립니다.
@@ -547,8 +628,7 @@ const ReceiptTemplate = ({ formData, totalPrice }) => {
                 </>
               ) : (
                 <>
-                  • 데이터는 예식후 당일 <strong>"거래확정"</strong> 후 전송이 됩니다.
-                  <br />
+                  {dataFirstLine}
                   • 10일 내 전체원본 e메일 전송해 드립니다.
                 </>
               )}
@@ -649,6 +729,10 @@ const Home = () => {
     memo: "",
     privateMemo: "",
     기타Price: "",
+    customerType: "platform", // "platform"(플랫폼) | "cash"(현금/워크인)
+    cashTotal: "", // 현금 손님용 총액 (직접 입력)
+    deposit: "", // 계약금 (직접 입력)
+    balance: "", // 잔금 (직접 입력)
   });
 
   /* 5. 연산 프로퍼티 (useMemo) */
@@ -665,6 +749,17 @@ const Home = () => {
     const 기타Price = parseInt(formData.기타Price) || 0;
     return productPrice + optionPrice + 기타Price;
   }, [formData.products, formData.options, formData.기타Price]);
+
+  // 현금(워크인) 손님: 촬영상품/옵션 선택 시 총액을 견적 합계와 자동 연동
+  useEffect(() => {
+    if (formData.customerType === "cash") {
+      setFormData((prev) =>
+        String(prev.cashTotal) === String(totalPrice)
+          ? prev
+          : { ...prev, cashTotal: String(totalPrice) },
+      );
+    }
+  }, [totalPrice, formData.customerType]);
 
   /* 6. 이벤트 핸들러 (함수들) */
   // [학습 포인트] React에서 입력값은 보통 e.target.value로 받아와서 상태(state)에 넣어줍니다.
@@ -885,6 +980,10 @@ const Home = () => {
       memo: "",
       privateMemo: "",
       기타Price: "",
+      customerType: "platform",
+      cashTotal: "",
+      deposit: "",
+      balance: "",
     });
   };
 
@@ -932,6 +1031,10 @@ const Home = () => {
       memo: res.memo || "",
       privateMemo: res.privateMemo || "",
       기타Price: res.기타Price || "",
+      customerType: res.customerType || "platform",
+      cashTotal: res.cashTotal || "",
+      deposit: res.deposit || "",
+      balance: res.balance || "",
     });
   };
 
@@ -984,6 +1087,10 @@ const Home = () => {
         memo: "",
         privateMemo: "",
         기타Price: "",
+        customerType: "platform",
+        cashTotal: "",
+        deposit: "",
+        balance: "",
       });
     }
   };
@@ -1069,12 +1176,21 @@ const Home = () => {
       ? `\n\n[상품 상세 내용]\n${selectedProduct.desc}`
       : "";
 
-    let dataNoticeText =
-      '\n\n[데이터 안내]\n• 데이터는 예식후 당일 "거래확정" 후 전송이 됩니다.\n• 10일내 전체원본 메일전송해 드립니다.';
+    const isCash = formData.customerType === "cash";
+    const cashTotalNum = Number(String(formData.cashTotal).replace(/[^\d]/g, "")) || 0;
+    const depositNum = Number(String(formData.deposit).replace(/[^\d]/g, "")) || 0;
+    const displayTotal = isCash ? cashTotalNum : totalPrice;
+    const balanceNum = Math.max(displayTotal - depositNum, 0);
+    const sendCondition = isCash ? "잔금입금" : '"거래확정"';
+
+    let dataNoticeText = `\n\n[데이터 안내]\n• 데이터는 예식후 당일 ${sendCondition} 후 전송이 됩니다.\n• 10일내 전체원본 메일전송해 드립니다.`;
     if (formData.products.includes("Private Data")) {
-      dataNoticeText =
-        '\n\n[데이터 안내]\n• 예식후 4일내 SNS용 서비스 10컷 카톡전송\n• 10일내 원본 메일전송\n• 셀렉 20컷 수정본 메일전송\n• *데이터는 예식후 당일 "거래확정"후 전송이 됩니다.*';
+      dataNoticeText = `\n\n[데이터 안내]\n• 예식후 4일내 SNS용 서비스 10컷 카톡전송\n• 10일내 원본 메일전송\n• 셀렉 20컷 수정본 메일전송\n• *데이터는 예식후 당일 ${sendCondition}후 전송이 됩니다.*`;
     }
+
+    const paymentText = isCash
+      ? `\n\n[입금 안내]\n• 계약금: ${depositNum.toLocaleString()}원 (견적일 당일까지 유효)\n• 잔금: ${balanceNum.toLocaleString()}원 (예식후 당일 입금원칙)\n• 입금계좌: ${DEPOSIT_ACCOUNT}`
+      : "";
 
     const text = `
 웨딩포토 스페셜리스트 박정훈작가
@@ -1093,7 +1209,7 @@ ${products}${productDetailText}
 [추가 옵션]
 ${options}${dataNoticeText}
 
-💰 총 견적: ₩${Number(totalPrice).toLocaleString()}
+💰 총 견적: ₩${Number(displayTotal).toLocaleString()}${paymentText}
 
 예식이 있는주에는 최종점검 안내 해피콜을 드립니다.
 행복한 결혼 준비 되세요!
@@ -1177,14 +1293,40 @@ ${options}${dataNoticeText}
               <h2 className="section-title" style={{ margin: 0 }}>
                 <FileTextOutlined /> 예약 상담표
               </h2>
-              <button
-                type="button"
-                onClick={handleReset}
-                className="action-btn-secondary"
-                style={{ padding: "6px 12px", fontSize: "0.85rem" }}
-              >
-                <PlusOutlined /> 새로 작성
-              </button>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                {/* 고객 유형 토글: 플랫폼 / 현금(워크인) */}
+                <div style={{ display: "flex", border: "1px solid #e5e7eb", borderRadius: "8px", overflow: "hidden" }}>
+                  {[
+                    { key: "platform", label: "플랫폼" },
+                    { key: "cash", label: "현금" },
+                  ].map((t) => (
+                    <button
+                      key={t.key}
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, customerType: t.key }))}
+                      style={{
+                        padding: "6px 14px",
+                        fontSize: "0.85rem",
+                        border: "none",
+                        cursor: "pointer",
+                        fontWeight: 700,
+                        background: formData.customerType === t.key ? "#2c3149" : "#fff",
+                        color: formData.customerType === t.key ? "#fff" : "#888",
+                      }}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="action-btn-secondary"
+                  style={{ padding: "6px 12px", fontSize: "0.85rem" }}
+                >
+                  <PlusOutlined /> 새로 작성
+                </button>
+              </div>
             </div>
 
             <form
@@ -1608,6 +1750,64 @@ ${options}${dataNoticeText}
                     </div>
                   </div>
                 </div>
+
+                {/* 현금(워크인) 손님 결제 정보 (총액/계약금/잔금 직접 입력) */}
+                {formData.customerType === "cash" && (
+                  <div className="form-section">
+                    <label
+                      style={{
+                        display: "block",
+                        fontWeight: 700,
+                        fontSize: "1.05rem",
+                        marginBottom: "12px",
+                      }}
+                    >
+                      현금 결제 정보
+                    </label>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px" }}>
+                      <div className="form-group">
+                        <label>총액 (상품 연동)</label>
+                        <input
+                          type="number"
+                          value={formData.cashTotal}
+                          onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, cashTotal: e.target.value }))
+                          }
+                          placeholder="원"
+                          min="0"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>계약금</label>
+                        <input
+                          type="number"
+                          value={formData.deposit}
+                          onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, deposit: e.target.value }))
+                          }
+                          placeholder="원"
+                          min="0"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>잔금 (자동)</label>
+                        <input
+                          type="text"
+                          readOnly
+                          value={`${Math.max(
+                            (Number(String(formData.cashTotal).replace(/[^\d]/g, "")) || 0) -
+                              (Number(String(formData.deposit).replace(/[^\d]/g, "")) || 0),
+                            0,
+                          ).toLocaleString()}원`}
+                          style={{ background: "#f5f5f5", color: "#333", fontWeight: 700 }}
+                        />
+                      </div>
+                    </div>
+                    <div style={{ marginTop: "10px", fontSize: "0.85rem", color: "#888" }}>
+                      입금계좌: {DEPOSIT_ACCOUNT} (고정)
+                    </div>
+                  </div>
+                )}
 
                 <div className="form-section">
                   <label
