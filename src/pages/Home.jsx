@@ -699,10 +699,30 @@ const Home = () => {
   // 컴포넌트가 처음 화면에 나타날 때(Mount) 실행할 코드입니다.
   // 여기서는 노션(Notion)에 저장된 예약 목록을 서버에서 가져옵니다.
   useEffect(() => {
+    // 1) 캐시된 예약을 즉시 표시 → 앱 열자마자 캘린더가 뜬다 (서버 응답 대기 체감 제거)
+    try {
+      const cached = localStorage.getItem("reservations_cache");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setReservations(parsed);
+          setLoading(false);
+        }
+      }
+    } catch (e) {
+      /* 캐시 없음/파싱 실패는 무시 */
+    }
+
+    // 2) 백그라운드에서 최신 데이터를 받아와 갱신 + 캐시 저장
     const fetchReservations = async () => {
       try {
         const data = await getReservationsFromNotion();
         setReservations(data); // 가져온 데이터를 전역 상태에 저장하여 화면에 뿌려줍니다.
+        try {
+          localStorage.setItem("reservations_cache", JSON.stringify(data));
+        } catch (e) {
+          /* 저장 실패 무시 */
+        }
       } catch (error) {
         console.error("Failed to load reservations:", error);
       } finally {
