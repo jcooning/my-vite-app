@@ -1123,6 +1123,12 @@
   gap: 8px;
 }
 
+.minute-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 48px);
+  gap: 8px;
+}
+
 .time-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1162,7 +1168,7 @@
 }
 
 .minute-btn {
-  width: 75px;
+  width: 48px;
   height: 45px;
   font-size: 1.1rem;
 }

@@ -699,6 +699,9 @@ const Home = () => {
   // 컴포넌트가 처음 화면에 나타날 때(Mount) 실행할 코드입니다.
   // 여기서는 노션(Notion)에 저장된 예약 목록을 서버에서 가져옵니다.
   useEffect(() => {
+    let isMounted = true;
+    let isFetching = false;
+
     // 1) 캐시된 예약을 즉시 표시 → 앱 열자마자 캘린더가 뜬다 (서버 응답 대기 체감 제거)
     try {
       const cached = localStorage.getItem("reservations_cache");
@@ -710,26 +713,46 @@ const Home = () => {
         }
       }
     } catch (e) {
-      /* 캐시 없음/파싱 실패는 무시 */
+      console.warn("예약 캐시를 불러오지 못했습니다.", e);
     }
 
-    // 2) 백그라운드에서 최신 데이터를 받아와 갱신 + 캐시 저장
-    const fetchReservations = async () => {
+    // 2) 최신 데이터를 받아와 갱신 + 캐시 저장
+    const fetchReservations = async (isInitialLoad = false) => {
+      if (isFetching) return;
+      isFetching = true;
+
       try {
         const data = await getReservationsFromNotion();
+        if (!isMounted) return;
         setReservations(data); // 가져온 데이터를 전역 상태에 저장하여 화면에 뿌려줍니다.
         try {
           localStorage.setItem("reservations_cache", JSON.stringify(data));
         } catch (e) {
-          /* 저장 실패 무시 */
+          console.warn("예약 캐시를 저장하지 못했습니다.", e);
         }
       } catch (error) {
         console.error("Failed to load reservations:", error);
       } finally {
-        setLoading(false);
+        isFetching = false;
+        if (isMounted && isInitialLoad) setLoading(false);
       }
     };
-    fetchReservations();
+
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") fetchReservations();
+    };
+    const refreshInterval = window.setInterval(refreshWhenVisible, 30_000);
+    window.addEventListener("focus", refreshWhenVisible);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+
+    fetchReservations(true);
+
+    return () => {
+      isMounted = false;
+      window.clearInterval(refreshInterval);
+      window.removeEventListener("focus", refreshWhenVisible);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
   }, [setReservations]);
 
   /* 4. 입력 폼 데이터 상태 (useState) */
@@ -1530,8 +1553,8 @@ ${options}${dataNoticeText}
                             {/* 3. Minutes (Right) */}
                             <div className="time-column">
                               <span className="time-column-title">분</span>
-                              <div className="time-btn-group">
-                                {["00", "30"].map((m) => {
+                              <div className="minute-grid">
+                                {["00", "10", "20", "30", "40", "50"].map((m) => {
                                   const currentM = formData.weddingTime
                                     ? dayjs(
                                         formData.weddingTime,
