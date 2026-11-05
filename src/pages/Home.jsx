@@ -678,6 +678,7 @@ const Home = () => {
   const [filterDate, setFilterDate] = useState(null); // 특정 날짜를 클릭했을 때 목록을 필터링하기 위한 용도
   const [showAllReservations, setShowAllReservations] = useState(false); // 전체 목록을 보여줄지 여부
   const [editingId, setEditingId] = useState(null); // 현재 수정 중인 예약의 ID (null이면 새로 작성 모드)
+  const isSavingRef = useRef(false); // 노션 저장 진행 중 여부
   const [loading, setLoading] = useState(true); // 데이터 로딩 중 표시 여부
 
   // 모달(팝업창) 열림/닫힘 상태
@@ -927,45 +928,47 @@ const Home = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // [학습 포인트] 폼 제출 시 브라우저가 새로고침되는 것을 막습니다.
+    if (isSavingRef.current) return; // 저장 중 재클릭으로 인한 중복 등록 방지
+    isSavingRef.current = true;
+
+    // 노션 페이지 ID는 문자열 → 자동 새로고침으로 목록이 교체돼도 수정 대상을 잃지 않는다
+    const pageId = editingId
+      ? (reservations.find((r) => r.id === editingId)?.notionPageId ??
+        (typeof editingId === "string" ? editingId : null))
+      : null;
 
     const reservationPayload = {
       ...formData,
       name: `${formData.groomName} & ${formData.brideName}`,
       totalPrice: totalPrice,
-      notionPageId: editingId
-        ? reservations.find((r) => r.id === editingId)?.notionPageId
-        : null,
+      notionPageId: pageId,
     };
 
-    if (editingId) {
+    if (pageId) {
       updateReservation(editingId, reservationPayload);
-      const pageId = reservationPayload.notionPageId;
-      if (pageId) {
-        try {
-          await updateReservationInNotion(pageId, {
-            name: reservationPayload.name,
-            date: formData.weddingDate,
-            time: formData.weddingTime,
-            location: `${formData.location} (${formData.address})`,
-            products: [...formData.products, ...formData.options],
-            totalPrice: totalPrice,
-            memo: formData.memo,
-            groomPhone: formData.groomPhone,
-            bridePhone: formData.bridePhone,
-          });
-          alert("예약 정보가 성공적으로 수정되었습니다.");
-        } catch (error) {
-          console.error("Notion update failed:", error.message);
-          alert("노션 수정에 실패했습니다.");
-        }
-      } else {
-        alert(
-          "연동된 노션 페이지 ID를 찾을 수 없습니다. 로컬 정보만 수정되었습니다.",
-        );
+      try {
+        await updateReservationInNotion(pageId, {
+          name: reservationPayload.name,
+          date: formData.weddingDate,
+          time: formData.weddingTime,
+          location: `${formData.location} (${formData.address})`,
+          products: [...formData.products, ...formData.options],
+          totalPrice: totalPrice,
+          memo: formData.memo,
+          groomPhone: formData.groomPhone,
+          bridePhone: formData.bridePhone,
+        });
+        alert("예약 정보가 성공적으로 수정되었습니다.");
+      } catch (error) {
+        console.error("Notion update failed:", error.message);
+        alert("노션 수정에 실패했습니다.");
+      } finally {
+        isSavingRef.current = false;
       }
       // 저장 후에도 입력한 내용을 그대로 유지 (미리보기·이미지 저장 바로 가능)
       // 새로 작성하려면 "새 예약" 버튼을 사용
     } else {
+      if (editingId) removeReservation(editingId); // 노션에 없는 로컬 항목은 새로 등록
       const creationId = Date.now();
       addReservation({ ...reservationPayload, id: creationId });
       // 등록 직후 편집 상태로 전환 → 폼 유지 + 다시 등록해도 중복 생성 대신 수정됨
@@ -982,14 +985,24 @@ const Home = () => {
           groomPhone: formData.groomPhone,
           bridePhone: formData.bridePhone,
         });
-        updateReservation(creationId, {
+        // 임시 ID를 서버 목록과 같은 노션 페이지 ID로 교체
+        removeReservation(creationId);
+        removeReservation(response.pageId);
+        addReservation({
           ...reservationPayload,
+          id: response.pageId,
           notionPageId: response.pageId,
         });
+        setEditingId(response.pageId);
         alert("예약 정보가 노션에 성공적으로 연동되었습니다.");
       } catch (error) {
         console.error("Notion save failed:", error.message);
-        alert("노션 연동에 실패했습니다.");
+        // 입력 내용은 폼에 남기고, 다시 누르면 새로 등록되도록 되돌린다
+        removeReservation(creationId);
+        setEditingId(null);
+        alert("노션 연동에 실패했습니다. 입력 내용은 유지되었으니 다시 등록해 주세요.");
+      } finally {
+        isSavingRef.current = false;
       }
     }
   };
