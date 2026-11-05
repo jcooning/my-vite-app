@@ -679,6 +679,7 @@ const Home = () => {
   const [showAllReservations, setShowAllReservations] = useState(false); // 전체 목록을 보여줄지 여부
   const [editingId, setEditingId] = useState(null); // 현재 수정 중인 예약의 ID (null이면 새로 작성 모드)
   const isSavingRef = useRef(false); // 노션 저장 진행 중 여부
+  const [syncStatus, setSyncStatus] = useState({ at: null, failed: false }); // 마지막 노션 동기화 결과
   const [loading, setLoading] = useState(true); // 데이터 로딩 중 표시 여부
 
   // 모달(팝업창) 열림/닫힘 상태
@@ -726,6 +727,7 @@ const Home = () => {
         const data = await getReservationsFromNotion();
         if (!isMounted) return;
         setReservations(data); // 가져온 데이터를 전역 상태에 저장하여 화면에 뿌려줍니다.
+        setSyncStatus({ at: new Date(), failed: false });
         try {
           localStorage.setItem("reservations_cache", JSON.stringify(data));
         } catch (e) {
@@ -733,6 +735,7 @@ const Home = () => {
         }
       } catch (error) {
         console.error("Failed to load reservations:", error);
+        if (isMounted) setSyncStatus((prev) => ({ ...prev, failed: true }));
       } finally {
         isFetching = false;
         if (isMounted && isInitialLoad) setLoading(false);
@@ -944,7 +947,19 @@ const Home = () => {
       notionPageId: pageId,
     };
 
-    if (pageId) {
+    // "새 예약"을 누르지 않고 다른 손님 정보를 덮어쓴 경우 기존 예약이 바뀌지 않도록 확인
+    const original = pageId
+      ? reservations.find((r) => r.id === editingId || r.notionPageId === pageId)
+      : null;
+    let saveAsNew = false;
+    if (original?.name && original.name !== reservationPayload.name) {
+      saveAsNew = window.confirm(
+        `이름이 바뀌었습니다.\n${original.name} → ${reservationPayload.name}\n\n[확인] 새 예약으로 따로 등록\n[취소] 기존 예약을 이 내용으로 수정`,
+      );
+    }
+    if (saveAsNew) reservationPayload.notionPageId = null;
+
+    if (pageId && !saveAsNew) {
       updateReservation(editingId, reservationPayload);
       try {
         await updateReservationInNotion(pageId, {
@@ -968,7 +983,7 @@ const Home = () => {
       // 저장 후에도 입력한 내용을 그대로 유지 (미리보기·이미지 저장 바로 가능)
       // 새로 작성하려면 "새 예약" 버튼을 사용
     } else {
-      if (editingId) removeReservation(editingId); // 노션에 없는 로컬 항목은 새로 등록
+      if (editingId && !saveAsNew) removeReservation(editingId); // 노션에 없는 로컬 항목은 새로 등록
       const creationId = Date.now();
       addReservation({ ...reservationPayload, id: creationId });
       // 등록 직후 편집 상태로 전환 → 폼 유지 + 다시 등록해도 중복 생성 대신 수정됨
@@ -1996,6 +2011,16 @@ ${options}${dataNoticeText}
               <h2 className="cal-header-title" style={{ margin: 0, fontWeight: 700, color: "var(--primary-color)", display: "flex", alignItems: "center", gap: "8px" }}>
                 <CalendarOutlined /> {currentYear}년 {currentMonth + 1}월
               </h2>
+              <span
+                title={syncStatus.failed ? "서버에서 최신 예약을 받지 못해 저장된 목록을 보여주는 중입니다." : "노션과 마지막으로 동기화한 시각"}
+                style={{ marginLeft: "auto", marginRight: "8px", fontSize: "0.75rem", whiteSpace: "nowrap", color: syncStatus.failed ? "#e74c3c" : "#999" }}
+              >
+                {syncStatus.failed
+                  ? `⚠ 동기화 실패${syncStatus.at ? ` (${dayjs(syncStatus.at).format("HH:mm")} 기준)` : ""}`
+                  : syncStatus.at
+                    ? `동기화 ${dayjs(syncStatus.at).format("HH:mm")}`
+                    : "동기화 중…"}
+              </span>
               <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
                 <button onClick={handlePrevMonth} className="nav-btn">&lt;</button>
                 <button onClick={handleGoToday} className="action-btn-secondary" style={{ padding: "4px 12px", fontSize: "0.85rem" }}>오늘</button>
