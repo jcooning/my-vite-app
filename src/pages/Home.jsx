@@ -81,7 +81,7 @@ const mainProducts = [
 ];
 
 const optionsList = [
-  { name: "식전원판", price: 99000 },
+  { name: "식전원판", price: 88000 },
   { name: "2부피로연", price: 220000 },
   { name: "피로연장 인사촬영", price: 99000 },
   { name: "야외웨딩", price: 110000 },
